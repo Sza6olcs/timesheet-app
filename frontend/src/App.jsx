@@ -151,6 +151,12 @@ function isAdminRole(role) {
   return role === "admin" || role === "superadmin";
 }
 
+// Ezek a szerepkörök nem munkaidő-nyilvántartott dolgozók, ezért az
+// elszámolási exportban/listákban nem jelennek meg dolgozóként.
+function isNonStaffRole(role) {
+  return isAdminRole(role) || role === "payroll";
+}
+
 function fmtDate(iso, lang) {
   if (!iso) return "";
   try {
@@ -685,7 +691,7 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
   useEffect(() => setAllowanceDraft(settings.allowancePerDay), [settings.allowancePerDay]);
 
   const supervisors = employees.filter((e) => e.role === "supervisor");
-  const groupEmployees = group === "all" ? employees.filter((e) => !isAdminRole(e.role)) : employees.filter((e) => e.supervisorId === group);
+  const groupEmployees = group === "all" ? employees.filter((e) => !isNonStaffRole(e.role)) : employees.filter((e) => e.supervisorId === group);
   const rangeValid = fromMonth <= toMonth;
   const expectedHours = settings.expectedMonthlyHours * (rangeValid ? monthsInRange(fromMonth, toMonth) : 1);
 

@@ -24,7 +24,7 @@ function monthsInRange(from, to) {
 
 function buildRows(from, to, group) {
   const settings = getSettings();
-  let employees = db.prepare("SELECT * FROM employees WHERE active = 1 AND role != 'admin'").all();
+  let employees = db.prepare("SELECT * FROM employees WHERE active = 1 AND role NOT IN ('admin', 'superadmin', 'payroll')").all();
   if (group && group !== "all") employees = employees.filter((e) => e.supervisor_id === group);
 
   const months = monthsInRange(from, to);
