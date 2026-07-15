@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS employees (
   name TEXT NOT NULL,
   code TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('employee','supervisor','admin','superadmin')),
+  role TEXT NOT NULL CHECK (role IN ('employee','supervisor','admin','superadmin','payroll')),
   supervisor_id TEXT REFERENCES employees(id) ON DELETE SET NULL,
   default_language TEXT NOT NULL DEFAULT 'hu',
   active INTEGER NOT NULL DEFAULT 1,
@@ -84,10 +84,10 @@ CREATE INDEX IF NOT EXISTS idx_entries_status ON timesheet_entries(status);
 CREATE INDEX IF NOT EXISTS idx_audit_entry ON entry_audit_log(entry_id);
 `);
 
-// Migráció: 'superadmin' szerepkör hozzáadása az employees tábla CHECK
-// constraint-jéhez. SQLite-ban ez csak táblaújraépítéssel oldható meg.
+// Migráció: 'superadmin' és 'payroll' szerepkör hozzáadása az employees tábla
+// CHECK constraint-jéhez. SQLite-ban ez csak táblaújraépítéssel oldható meg.
 const employeesTableSql = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='employees'").get()?.sql || "";
-if (employeesTableSql && !employeesTableSql.includes("superadmin")) {
+if (employeesTableSql && !employeesTableSql.includes("payroll")) {
   db.pragma("foreign_keys = OFF");
   db.exec(`
     CREATE TABLE employees_new (
@@ -95,7 +95,7 @@ if (employeesTableSql && !employeesTableSql.includes("superadmin")) {
       name TEXT NOT NULL,
       code TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
-      role TEXT NOT NULL CHECK (role IN ('employee','supervisor','admin','superadmin')),
+      role TEXT NOT NULL CHECK (role IN ('employee','supervisor','admin','superadmin','payroll')),
       supervisor_id TEXT REFERENCES employees(id) ON DELETE SET NULL,
       default_language TEXT NOT NULL DEFAULT 'hu',
       active INTEGER NOT NULL DEFAULT 1,

@@ -30,7 +30,7 @@ router.post("/", requireAuth, requireRole("admin"), (req, res) => {
   if (!name || !code || !role || !password) {
     return res.status(400).json({ error: "Név, kód, szerepkör és jelszó megadása kötelező." });
   }
-  if (!["employee", "supervisor", "admin", "superadmin"].includes(role)) {
+  if (!["employee", "supervisor", "admin", "superadmin", "payroll"].includes(role)) {
     return res.status(400).json({ error: "Érvénytelen szerepkör." });
   }
   if (role === "superadmin" && req.user.role !== "superadmin") {
@@ -67,7 +67,7 @@ router.patch("/:id", requireAuth, requireRole("admin"), (req, res) => {
   if (!emp) return res.status(404).json({ error: "Felhasználó nem található." });
 
   const { name, code, role, supervisorId, defaultLanguage } = req.body || {};
-  if (role && !["employee", "supervisor", "admin", "superadmin"].includes(role)) {
+  if (role && !["employee", "supervisor", "admin", "superadmin", "payroll"].includes(role)) {
     return res.status(400).json({ error: "Érvénytelen szerepkör." });
   }
   if (role === "superadmin" && emp.role !== "superadmin" && req.user.role !== "superadmin") {

@@ -27,7 +27,7 @@ const TRANSLATIONS = {
     correction: { title: "Jóváhagyott rekord javítása", original: "Eredeti érték", newValue: "Új érték", reason: "Javítás oka (kötelező)", reasonPlaceholder: "Miért szükséges a módosítás…", history: "Módosítási előzmény", pickRecord: "Válassz jóváhagyott rekordot a listából", noRecords: "Nincs jóváhagyott rekord javításra." },
     exportView: { title: "Havi elszámolási export", month: "Hónap", periodFrom: "Időszak kezdete", periodTo: "Időszak vége", rangeInvalid: "A kezdő hónap nem lehet később, mint a záró hónap.", group: "Csoport / vezető", allGroups: "Minden csoport", name: "Név", expected: "Havi várható munkaidő", worked: "Ledolgozott órák", difference: "Különbség", allowance: "Napidíj", extraAllowance: "Extra pótlék (súlyozott átl. %)", extraAllowanceHours: "Pótlékos órák", approver: "Jóváhagyó neve", lastMod: "Utolsó módosítás", lastModBy: "Utolsó módosítást végző", noneYet: "—", allowanceSetting: "Napidíj összege / nap", allowanceSaved: "Napidíj mentve" },
     audit: { title: "Auditnapló", entry: "Rekord", changedBy: "Módosító", changedAt: "Időpont", reason: "Ok", empty: "Nincs még módosítási bejegyzés." },
-    users: { title: "Felhasználók kezelése", name: "Teljes név", code: "Dolgozói azonosító", role: "Szerepkör", supervisor: "Csoportvezető", none: "Nincs", add: "Új felhasználó", namePlaceholder: "pl. Kiss János", codePlaceholder: "pl. E-1009", password: "Kezdő jelszó", passwordPlaceholder: "min. 6 karakter", deleteWarning: "A felhasználó inaktiválásra kerül — a korábbi bejegyzései megmaradnak, de nem tud többé bejelentkezni.", confirmDeleteMsg: "Biztosan eltávolítod ezt a felhasználót?", role_employee: "Dolgozó", role_supervisor: "Csoportvezető", role_admin: "Admin", role_superadmin: "Super Admin" },
+    users: { title: "Felhasználók kezelése", name: "Teljes név", code: "Dolgozói azonosító", role: "Szerepkör", supervisor: "Csoportvezető", none: "Nincs", add: "Új felhasználó", namePlaceholder: "pl. Kiss János", codePlaceholder: "pl. E-1009", password: "Kezdő jelszó", passwordPlaceholder: "min. 6 karakter", deleteWarning: "A felhasználó inaktiválásra kerül — a korábbi bejegyzései megmaradnak, de nem tud többé bejelentkezni.", confirmDeleteMsg: "Biztosan eltávolítod ezt a felhasználót?", role_employee: "Dolgozó", role_supervisor: "Csoportvezető", role_admin: "Admin", role_superadmin: "Super Admin", role_payroll: "Bérszámfejtő" },
     entriesAdmin: { title: "Bejegyzések kezelése", filterEmployee: "Dolgozó", filterStatus: "Státusz", all: "Mind", empty: "Nincs a szűrésnek megfelelő bejegyzés.", reasonPrompt: "Törlés oka (kötelező)", reasonPlaceholder: "Írd le, miért törlöd ezt a bejegyzést…", confirmDeleteMsg: "Ez a művelet végleges — biztosan törlöd ezt a bejegyzést?" },
     locations: { title: "Telephelyek kezelése", country: "Ország", city: "Város", plant: "Gyár neve", add: "Új telephely", countryPlaceholder: "pl. Magyarország", cityPlaceholder: "pl. Győr", plantPlaceholder: "pl. Győr Gyár 2", deleteWarning: "A telephely véglegesen törlődik a listából. A korábbi bejegyzésekben a neve megmarad.", confirmDeleteMsg: "Biztosan törlöd ezt a telephelyet?" },
     departments: { title: "Részlegek kezelése", name: "Részleg neve", add: "Új részleg", namePlaceholder: "pl. Karbantartás", deleteWarning: "A részleg véglegesen törlődik a listából. A korábbi bejegyzésekben a neve megmarad.", confirmDeleteMsg: "Biztosan törlöd ezt a részleget?" },
@@ -48,7 +48,7 @@ const TRANSLATIONS = {
     correction: { title: "Correct an approved record", original: "Original value", newValue: "New value", reason: "Reason for correction (required)", reasonPlaceholder: "Why is this change needed…", history: "Correction history", pickRecord: "Pick an approved record from the list", noRecords: "No approved records to correct." },
     exportView: { title: "Monthly payroll export", month: "Month", periodFrom: "Period from", periodTo: "Period to", rangeInvalid: "The start month cannot be later than the end month.", group: "Group / supervisor", allGroups: "All groups", name: "Name", expected: "Expected monthly hours", worked: "Worked hours", difference: "Difference", allowance: "Allowance", extraAllowance: "Extra allowance (weighted avg. %)", extraAllowanceHours: "Allowance hours", approver: "Approver name", lastMod: "Last modified", lastModBy: "Last modified by", noneYet: "—", allowanceSetting: "Allowance amount / day", allowanceSaved: "Allowance saved" },
     audit: { title: "Audit log", entry: "Record", changedBy: "Changed by", changedAt: "Time", reason: "Reason", empty: "No changes logged yet." },
-    users: { title: "Manage users", name: "Full name", code: "Employee code", role: "Role", supervisor: "Supervisor", none: "None", add: "Add user", namePlaceholder: "e.g. John Smith", codePlaceholder: "e.g. E-1009", password: "Initial password", passwordPlaceholder: "min. 6 characters", deleteWarning: "The user will be deactivated — their past entries stay, but they can no longer sign in.", confirmDeleteMsg: "Remove this user?", role_employee: "Employee", role_supervisor: "Supervisor", role_admin: "Admin", role_superadmin: "Super Admin" },
+    users: { title: "Manage users", name: "Full name", code: "Employee code", role: "Role", supervisor: "Supervisor", none: "None", add: "Add user", namePlaceholder: "e.g. John Smith", codePlaceholder: "e.g. E-1009", password: "Initial password", passwordPlaceholder: "min. 6 characters", deleteWarning: "The user will be deactivated — their past entries stay, but they can no longer sign in.", confirmDeleteMsg: "Remove this user?", role_employee: "Employee", role_supervisor: "Supervisor", role_admin: "Admin", role_superadmin: "Super Admin", role_payroll: "Payroll" },
     entriesAdmin: { title: "Manage entries", filterEmployee: "Employee", filterStatus: "Status", all: "All", empty: "No entries match the current filters.", reasonPrompt: "Reason for deletion (required)", reasonPlaceholder: "Describe why this entry is being deleted…", confirmDeleteMsg: "This action is permanent — delete this entry?" },
     locations: { title: "Manage locations", country: "Country", city: "City", plant: "Plant name", add: "Add location", countryPlaceholder: "e.g. Hungary", cityPlaceholder: "e.g. Győr", plantPlaceholder: "e.g. Győr Plant 2", deleteWarning: "The location will be permanently removed from the list. Past entries keep its name.", confirmDeleteMsg: "Remove this location?" },
     departments: { title: "Manage departments", name: "Department name", add: "Add department", namePlaceholder: "e.g. Maintenance", deleteWarning: "The department will be permanently removed from the list. Past entries keep its name.", confirmDeleteMsg: "Remove this department?" },
@@ -69,7 +69,7 @@ const TRANSLATIONS = {
     correction: { title: "Freigegebenen Eintrag korrigieren", original: "Ursprünglicher Wert", newValue: "Neuer Wert", reason: "Korrekturgrund (erforderlich)", reasonPlaceholder: "Warum ist die Änderung nötig…", history: "Korrekturverlauf", pickRecord: "Wähle einen freigegebenen Eintrag aus der Liste", noRecords: "Keine freigegebenen Einträge zu korrigieren." },
     exportView: { title: "Monatlicher Abrechnungsexport", month: "Monat", periodFrom: "Zeitraum von", periodTo: "Zeitraum bis", rangeInvalid: "Der Startmonat darf nicht nach dem Endmonat liegen.", group: "Gruppe / Vorgesetzter", allGroups: "Alle Gruppen", name: "Name", expected: "Monatliche Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", allowance: "Zulage", extraAllowance: "Zusätzliche Zulage (gew. Ø %)", extraAllowanceHours: "Zulagenstunden", approver: "Name des Freigebers", lastMod: "Letzte Änderung", lastModBy: "Geändert von", noneYet: "—", allowanceSetting: "Zulagenbetrag / Tag", allowanceSaved: "Zulage gespeichert" },
     audit: { title: "Prüfprotokoll", entry: "Eintrag", changedBy: "Geändert von", changedAt: "Zeitpunkt", reason: "Grund", empty: "Noch keine Änderungen protokolliert." },
-    users: { title: "Benutzer verwalten", name: "Vollständiger Name", code: "Mitarbeiternummer", role: "Rolle", supervisor: "Vorgesetzter", none: "Keiner", add: "Benutzer hinzufügen", namePlaceholder: "z. B. Max Mustermann", codePlaceholder: "z. B. E-1009", password: "Anfangspasswort", passwordPlaceholder: "min. 6 Zeichen", deleteWarning: "Der Benutzer wird deaktiviert — bisherige Einträge bleiben erhalten, Anmeldung ist nicht mehr möglich.", confirmDeleteMsg: "Diesen Benutzer entfernen?", role_employee: "Mitarbeiter", role_supervisor: "Vorgesetzter", role_admin: "Admin", role_superadmin: "Super Admin" },
+    users: { title: "Benutzer verwalten", name: "Vollständiger Name", code: "Mitarbeiternummer", role: "Rolle", supervisor: "Vorgesetzter", none: "Keiner", add: "Benutzer hinzufügen", namePlaceholder: "z. B. Max Mustermann", codePlaceholder: "z. B. E-1009", password: "Anfangspasswort", passwordPlaceholder: "min. 6 Zeichen", deleteWarning: "Der Benutzer wird deaktiviert — bisherige Einträge bleiben erhalten, Anmeldung ist nicht mehr möglich.", confirmDeleteMsg: "Diesen Benutzer entfernen?", role_employee: "Mitarbeiter", role_supervisor: "Vorgesetzter", role_admin: "Admin", role_superadmin: "Super Admin", role_payroll: "Lohnbuchhaltung" },
     entriesAdmin: { title: "Einträge verwalten", filterEmployee: "Mitarbeiter", filterStatus: "Status", all: "Alle", empty: "Keine Einträge entsprechen den Filtern.", reasonPrompt: "Grund der Löschung (erforderlich)", reasonPlaceholder: "Beschreibe, warum dieser Eintrag gelöscht wird…", confirmDeleteMsg: "Diese Aktion ist endgültig — diesen Eintrag löschen?" },
     locations: { title: "Standorte verwalten", country: "Land", city: "Stadt", plant: "Werksname", add: "Standort hinzufügen", countryPlaceholder: "z. B. Ungarn", cityPlaceholder: "z. B. Győr", plantPlaceholder: "z. B. Győr Werk 2", deleteWarning: "Der Standort wird endgültig aus der Liste entfernt. Vergangene Einträge behalten seinen Namen.", confirmDeleteMsg: "Diesen Standort entfernen?" },
     departments: { title: "Abteilungen verwalten", name: "Abteilungsname", add: "Abteilung hinzufügen", namePlaceholder: "z. B. Instandhaltung", deleteWarning: "Die Abteilung wird endgültig aus der Liste entfernt. Vergangene Einträge behalten ihren Namen.", confirmDeleteMsg: "Diese Abteilung entfernen?" },
@@ -90,7 +90,7 @@ const TRANSLATIONS = {
     correction: { title: "Corectează o înregistrare aprobată", original: "Valoare originală", newValue: "Valoare nouă", reason: "Motivul corecției (obligatoriu)", reasonPlaceholder: "De ce este necesară modificarea…", history: "Istoric corecții", pickRecord: "Alege o înregistrare aprobată din listă", noRecords: "Nu există înregistrări aprobate de corectat." },
     exportView: { title: "Export lunar pentru salarizare", month: "Lună", periodFrom: "Perioada de la", periodTo: "Perioada până la", rangeInvalid: "Luna de început nu poate fi ulterioară lunii de sfârșit.", group: "Grup / șef", allGroups: "Toate grupurile", name: "Nume", expected: "Ore lunare așteptate", worked: "Ore lucrate", difference: "Diferență", allowance: "Diurnă", extraAllowance: "Indemnizație suplimentară (medie ponderată %)", extraAllowanceHours: "Ore cu indemnizație", approver: "Numele aprobatorului", lastMod: "Ultima modificare", lastModBy: "Modificat de", noneYet: "—", allowanceSetting: "Suma diurnei / zi", allowanceSaved: "Diurnă salvată" },
     audit: { title: "Jurnal audit", entry: "Înregistrare", changedBy: "Modificat de", changedAt: "Data/ora", reason: "Motiv", empty: "Nicio modificare înregistrată încă." },
-    users: { title: "Gestionare utilizatori", name: "Nume complet", code: "Cod angajat", role: "Rol", supervisor: "Șef de echipă", none: "Niciunul", add: "Adaugă utilizator", namePlaceholder: "ex. Ion Popescu", codePlaceholder: "ex. E-1009", password: "Parolă inițială", passwordPlaceholder: "min. 6 caractere", deleteWarning: "Utilizatorul va fi dezactivat — înregistrările anterioare rămân, dar nu se mai poate autentifica.", confirmDeleteMsg: "Elimini acest utilizator?", role_employee: "Angajat", role_supervisor: "Șef de echipă", role_admin: "Admin", role_superadmin: "Super Admin" },
+    users: { title: "Gestionare utilizatori", name: "Nume complet", code: "Cod angajat", role: "Rol", supervisor: "Șef de echipă", none: "Niciunul", add: "Adaugă utilizator", namePlaceholder: "ex. Ion Popescu", codePlaceholder: "ex. E-1009", password: "Parolă inițială", passwordPlaceholder: "min. 6 caractere", deleteWarning: "Utilizatorul va fi dezactivat — înregistrările anterioare rămân, dar nu se mai poate autentifica.", confirmDeleteMsg: "Elimini acest utilizator?", role_employee: "Angajat", role_supervisor: "Șef de echipă", role_admin: "Admin", role_superadmin: "Super Admin", role_payroll: "Contabilitate salarii" },
     entriesAdmin: { title: "Gestionare înregistrări", filterEmployee: "Angajat", filterStatus: "Stare", all: "Toate", empty: "Nicio înregistrare nu corespunde filtrelor.", reasonPrompt: "Motivul ștergerii (obligatoriu)", reasonPlaceholder: "Descrie de ce se șterge această înregistrare…", confirmDeleteMsg: "Această acțiune este definitivă — ștergi această înregistrare?" },
     locations: { title: "Gestionare locații", country: "Țară", city: "Oraș", plant: "Numele uzinei", add: "Adaugă locație", countryPlaceholder: "ex. Ungaria", cityPlaceholder: "ex. Győr", plantPlaceholder: "ex. Uzina Győr 2", deleteWarning: "Locația va fi eliminată definitiv din listă. Înregistrările anterioare păstrează numele ei.", confirmDeleteMsg: "Elimini această locație?" },
     departments: { title: "Gestionare departamente", name: "Numele departamentului", add: "Adaugă departament", namePlaceholder: "ex. Întreținere", deleteWarning: "Departamentul va fi eliminat definitiv din listă. Înregistrările anterioare păstrează numele lui.", confirmDeleteMsg: "Elimini acest departament?" },
@@ -111,7 +111,7 @@ const TRANSLATIONS = {
     correction: { title: "Onaylı kaydı düzelt", original: "Orijinal değer", newValue: "Yeni değer", reason: "Düzeltme nedeni (zorunlu)", reasonPlaceholder: "Değişiklik neden gerekli…", history: "Düzeltme geçmişi", pickRecord: "Listeden onaylı bir kayıt seç", noRecords: "Düzeltilecek onaylı kayıt yok." },
     exportView: { title: "Aylık bordro dışa aktarımı", month: "Ay", periodFrom: "Dönem başlangıcı", periodTo: "Dönem bitişi", rangeInvalid: "Başlangıç ayı bitiş ayından sonra olamaz.", group: "Grup / yönetici", allGroups: "Tüm gruplar", name: "İsim", expected: "Aylık beklenen saat", worked: "Çalışılan saat", difference: "Fark", allowance: "Yevmiye", extraAllowance: "Ek ödenek (ağırlıklı ort. %)", extraAllowanceHours: "Ek ödenek saati", approver: "Onaylayan adı", lastMod: "Son değişiklik", lastModBy: "Değiştiren", noneYet: "—", allowanceSetting: "Yevmiye tutarı / gün", allowanceSaved: "Yevmiye kaydedildi" },
     audit: { title: "Denetim günlüğü", entry: "Kayıt", changedBy: "Değiştiren", changedAt: "Zaman", reason: "Neden", empty: "Henüz kayıtlı değişiklik yok." },
-    users: { title: "Kullanıcı yönetimi", name: "Ad Soyad", code: "Personel kodu", role: "Rol", supervisor: "Ekip lideri", none: "Yok", add: "Kullanıcı ekle", namePlaceholder: "örn. Ahmet Yılmaz", codePlaceholder: "örn. E-1009", password: "Başlangıç şifresi", passwordPlaceholder: "en az 6 karakter", deleteWarning: "Kullanıcı devre dışı bırakılır — geçmiş kayıtları kalır, ancak artık giriş yapamaz.", confirmDeleteMsg: "Bu kullanıcıyı kaldırmak istiyor musun?", role_employee: "Çalışan", role_supervisor: "Ekip lideri", role_admin: "Yönetici", role_superadmin: "Süper Yönetici" },
+    users: { title: "Kullanıcı yönetimi", name: "Ad Soyad", code: "Personel kodu", role: "Rol", supervisor: "Ekip lideri", none: "Yok", add: "Kullanıcı ekle", namePlaceholder: "örn. Ahmet Yılmaz", codePlaceholder: "örn. E-1009", password: "Başlangıç şifresi", passwordPlaceholder: "en az 6 karakter", deleteWarning: "Kullanıcı devre dışı bırakılır — geçmiş kayıtları kalır, ancak artık giriş yapamaz.", confirmDeleteMsg: "Bu kullanıcıyı kaldırmak istiyor musun?", role_employee: "Çalışan", role_supervisor: "Ekip lideri", role_admin: "Yönetici", role_superadmin: "Süper Yönetici", role_payroll: "Bordro" },
     entriesAdmin: { title: "Kayıtları yönet", filterEmployee: "Çalışan", filterStatus: "Durum", all: "Tümü", empty: "Filtreye uyan kayıt yok.", reasonPrompt: "Silme nedeni (zorunlu)", reasonPlaceholder: "Bu kaydın neden silindiğini açıkla…", confirmDeleteMsg: "Bu işlem kalıcıdır — bu kaydı silmek istiyor musun?" },
     locations: { title: "Lokasyonları yönet", country: "Ülke", city: "Şehir", plant: "Tesis adı", add: "Lokasyon ekle", countryPlaceholder: "örn. Macaristan", cityPlaceholder: "örn. Győr", plantPlaceholder: "örn. Győr Tesis 2", deleteWarning: "Lokasyon listeden kalıcı olarak kaldırılır. Geçmiş kayıtlar adını korur.", confirmDeleteMsg: "Bu lokasyonu kaldırmak istiyor musun?" },
     departments: { title: "Departmanları yönet", name: "Departman adı", add: "Departman ekle", namePlaceholder: "örn. Bakım", deleteWarning: "Departman listeden kalıcı olarak kaldırılır. Geçmiş kayıtlar adını korur.", confirmDeleteMsg: "Bu departmanı kaldırmak istiyor musun?" },
@@ -674,7 +674,7 @@ function monthsInRange(from, to) {
   return Math.max(1, (ty - fy) * 12 + (tm - fm) + 1);
 }
 
-function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onExport }) {
+function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onExport, canEditSettings }) {
   const thisMonth = new Date().toISOString().slice(0, 7);
   const [fromMonth, setFromMonth] = useState(thisMonth);
   const [toMonth, setToMonth] = useState(thisMonth);
@@ -742,14 +742,21 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
         </div>
         <div className="field">
           <label className="field-label">{t("exportView.allowanceSetting")}</label>
-          <div className="allowance-edit">
-            <input type="number" min="0" step="100" className="input input-sm" value={allowanceDraft} onChange={(e) => setAllowanceDraft(e.target.value)} />
-            <span className="unit-suffix">{t("misc.currency")}</span>
-            <button className="btn btn-ghost btn-sm" onClick={saveAllowance} disabled={Number(allowanceDraft) === settings.allowancePerDay}>
-              {t("buttons.save")}
-            </button>
-            {savedFlash && <span className="inline-saved">{t("exportView.allowanceSaved")}</span>}
-          </div>
+          {canEditSettings ? (
+            <div className="allowance-edit">
+              <input type="number" min="0" step="100" className="input input-sm" value={allowanceDraft} onChange={(e) => setAllowanceDraft(e.target.value)} />
+              <span className="unit-suffix">{t("misc.currency")}</span>
+              <button className="btn btn-ghost btn-sm" onClick={saveAllowance} disabled={Number(allowanceDraft) === settings.allowancePerDay}>
+                {t("buttons.save")}
+              </button>
+              {savedFlash && <span className="inline-saved">{t("exportView.allowanceSaved")}</span>}
+            </div>
+          ) : (
+            <div className="allowance-edit">
+              <span>{settings.allowancePerDay}</span>
+              <span className="unit-suffix">{t("misc.currency")}</span>
+            </div>
+          )}
         </div>
         <button className="btn btn-secondary btn-sm" disabled={!rangeValid} onClick={() => onExport("csv", fromMonth, toMonth, group)}>
           <Download size={14} /> {t("buttons.exportCsv")}
@@ -923,6 +930,7 @@ function UsersView({ t, employees, currentUser, isSuperAdmin, onAdd, onDelete, o
               <option value="employee">{t("users.role_employee")}</option>
               <option value="supervisor">{t("users.role_supervisor")}</option>
               <option value="admin">{t("users.role_admin")}</option>
+              <option value="payroll">{t("users.role_payroll")}</option>
               {isSuperAdmin && <option value="superadmin">{t("users.role_superadmin")}</option>}
             </select>
           </div>
@@ -976,6 +984,7 @@ function UsersView({ t, employees, currentUser, isSuperAdmin, onAdd, onDelete, o
                         <option value="employee">{t("users.role_employee")}</option>
                         <option value="supervisor">{t("users.role_supervisor")}</option>
                         <option value="admin">{t("users.role_admin")}</option>
+                        <option value="payroll">{t("users.role_payroll")}</option>
                         {isSuperAdmin && <option value="superadmin">{t("users.role_superadmin")}</option>}
                       </select>
                     </td>
@@ -1540,6 +1549,7 @@ export default function App() {
           const { user: me } = await api.me();
           setUser(me);
           await loadAll(me);
+          setTab(me.role === "payroll" ? "export" : "dashboard");
         } catch {
           setToken(null);
         }
@@ -1556,7 +1566,7 @@ export default function App() {
       setToken(token);
       setUser(me);
       await loadAll(me);
-      setTab("dashboard");
+      setTab(me.role === "payroll" ? "export" : "dashboard");
     } catch (err) {
       setLoginError(err.message || t("login.error"));
     } finally {
@@ -1751,7 +1761,8 @@ export default function App() {
   const isSupervisorish = user.role === "supervisor" || isAdminRole(user.role);
   const isAdmin = isAdminRole(user.role);
   const isSuperAdmin = user.role === "superadmin";
-  const navItems = ["dashboard", "newEntry"];
+  const isPayroll = user.role === "payroll";
+  const navItems = isPayroll ? ["export"] : ["dashboard", "newEntry"];
   if (isSupervisorish) navItems.push("approvals", "corrections");
   if (isAdmin) navItems.push("export", "auditLog", "users", "locations", "departments");
   if (isSuperAdmin) navItems.push("entries");
@@ -1803,11 +1814,11 @@ export default function App() {
         </aside>
 
         <main className="main">
-          {tab === "dashboard" && <Dashboard t={t} lang={lang} user={user} entries={entries} settings={settings} onOpenNewEntry={() => setTab("newEntry")} />}
-          {tab === "newEntry" && <EntryForm t={t} locations={locations} departments={departments} onCancel={() => setTab("dashboard")} onSave={saveDraft} onSubmit={submitEntry} busy={busy} />}
+          {tab === "dashboard" && !isPayroll && <Dashboard t={t} lang={lang} user={user} entries={entries} settings={settings} onOpenNewEntry={() => setTab("newEntry")} />}
+          {tab === "newEntry" && !isPayroll && <EntryForm t={t} locations={locations} departments={departments} onCancel={() => setTab("dashboard")} onSave={saveDraft} onSubmit={submitEntry} busy={busy} />}
           {tab === "approvals" && isSupervisorish && <ApprovalView t={t} user={user} entries={entries} employees={employees} onApprove={approveEntry} onReturn={returnEntry} />}
           {tab === "corrections" && isSupervisorish && <CorrectionView t={t} user={user} entries={entries} employees={employees} auditLog={auditLog} onCorrect={correctEntry} />}
-          {tab === "export" && isAdmin && <ExportView t={t} lang={lang} entries={entries} employees={employees} settings={settings} onSaveSettings={saveSettings} onExport={doExport} />}
+          {tab === "export" && (isAdmin || isPayroll) && <ExportView t={t} lang={lang} entries={entries} employees={employees} settings={settings} onSaveSettings={saveSettings} onExport={doExport} canEditSettings={isAdmin} />}
           {tab === "auditLog" && isAdmin && <AuditLogView t={t} lang={lang} auditLog={auditLog} employees={employees} />}
           {tab === "users" && isAdmin && <UsersView t={t} employees={employees} currentUser={user} isSuperAdmin={isSuperAdmin} onAdd={addEmployee} onDelete={deleteEmployee} onUpdate={updateEmployee} />}
           {tab === "locations" && isAdmin && <LocationsView t={t} locations={locations} onAdd={addLocation} onUpdate={updateLocation} onDelete={deleteLocation} />}

@@ -83,7 +83,7 @@ function parseRange(query) {
   return { fromMonth, toMonth };
 }
 
-router.get("/csv", requireAuth, requireRole("admin"), (req, res) => {
+router.get("/csv", requireAuth, requireRole("admin", "payroll"), (req, res) => {
   const range = parseRange(req.query);
   if (!range) return res.status(400).json({ error: "The 'from' and 'to' parameters (YYYY-MM) are required." });
   const { fromMonth, toMonth } = range;
@@ -100,7 +100,7 @@ router.get("/csv", requireAuth, requireRole("admin"), (req, res) => {
   res.send("﻿" + lines.join("\n"));
 });
 
-router.get("/xlsx", requireAuth, requireRole("admin"), async (req, res) => {
+router.get("/xlsx", requireAuth, requireRole("admin", "payroll"), async (req, res) => {
   const range = parseRange(req.query);
   if (!range) return res.status(400).json({ error: "The 'from' and 'to' parameters (YYYY-MM) are required." });
   const { fromMonth, toMonth } = range;
