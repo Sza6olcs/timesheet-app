@@ -30,7 +30,9 @@ router.post("/change-password", requireAuth, (req, res) => {
   }
   const emp = db.prepare("SELECT * FROM employees WHERE id = ?").get(req.user.id);
   if (!bcrypt.compareSync(currentPassword, emp.password_hash)) {
-    return res.status(401).json({ error: "A jelenlegi jelszó nem megfelelő." });
+    // Szándékosan 400-as státusz (nem 401): a frontend a 401-et lejárt
+    // munkamenetként kezeli és automatikusan kijelentkeztetne.
+    return res.status(400).json({ error: "A jelenlegi jelszó nem megfelelő." });
   }
   const hash = bcrypt.hashSync(newPassword, 10);
   db.prepare("UPDATE employees SET password_hash = ? WHERE id = ?").run(hash, req.user.id);
