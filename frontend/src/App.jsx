@@ -1429,7 +1429,7 @@ function EntriesAdminView({ t, entries, employees, onDelete }) {
       <div className="filter-row">
         <select className="input input-sm" value={empFilter} onChange={(e) => setEmpFilter(e.target.value)}>
           <option value="all">{t("entriesAdmin.filterEmployee")}: {t("entriesAdmin.all")}</option>
-          {employees.filter((e) => !isAdminRole(e.role)).map((e) => (
+          {employees.map((e) => (
             <option key={e.id} value={e.id}>{e.name}</option>
           ))}
         </select>
