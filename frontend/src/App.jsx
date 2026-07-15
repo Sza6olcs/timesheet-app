@@ -25,7 +25,7 @@ const TRANSLATIONS = {
     dashboard: { expected: "Várható óra", worked: "Ledolgozott óra", difference: "Különbség", recent: "Legutóbbi bejegyzések", newEntryCta: "Új napi bejegyzés", empty: "Még nincs bejegyzés ebben a hónapban." },
     approval: { title: "Függőben lévő bejegyzések", filterEmployee: "Dolgozó", filterStatus: "Státusz", all: "Mind", empty: "Nincs jóváhagyásra váró tétel.", reasonPrompt: "Visszaküldés oka (kötelező)", reasonPlaceholder: "Írd le, mit kell javítani…", adminOverride: "Pótlék felülbírálása jóváhagyáskor" },
     correction: { title: "Jóváhagyott rekord javítása", original: "Eredeti érték", newValue: "Új érték", reason: "Javítás oka (kötelező)", reasonPlaceholder: "Miért szükséges a módosítás…", history: "Módosítási előzmény", pickRecord: "Válassz jóváhagyott rekordot a listából", noRecords: "Nincs jóváhagyott rekord javításra." },
-    exportView: { title: "Havi elszámolási export", month: "Hónap", group: "Csoport / vezető", allGroups: "Minden csoport", name: "Név", expected: "Havi várható munkaidő", worked: "Ledolgozott órák", difference: "Különbség", allowance: "Napidíj", extraAllowance: "Extra pótlék (súlyozott átl. %)", extraAllowanceHours: "Pótlékos órák", approver: "Jóváhagyó neve", lastMod: "Utolsó módosítás", lastModBy: "Utolsó módosítást végző", noneYet: "—", allowanceSetting: "Napidíj összege / nap", allowanceSaved: "Napidíj mentve" },
+    exportView: { title: "Havi elszámolási export", month: "Hónap", periodFrom: "Időszak kezdete", periodTo: "Időszak vége", rangeInvalid: "A kezdő hónap nem lehet később, mint a záró hónap.", group: "Csoport / vezető", allGroups: "Minden csoport", name: "Név", expected: "Havi várható munkaidő", worked: "Ledolgozott órák", difference: "Különbség", allowance: "Napidíj", extraAllowance: "Extra pótlék (súlyozott átl. %)", extraAllowanceHours: "Pótlékos órák", approver: "Jóváhagyó neve", lastMod: "Utolsó módosítás", lastModBy: "Utolsó módosítást végző", noneYet: "—", allowanceSetting: "Napidíj összege / nap", allowanceSaved: "Napidíj mentve" },
     audit: { title: "Auditnapló", entry: "Rekord", changedBy: "Módosító", changedAt: "Időpont", reason: "Ok", empty: "Nincs még módosítási bejegyzés." },
     users: { title: "Felhasználók kezelése", name: "Teljes név", code: "Dolgozói azonosító", role: "Szerepkör", supervisor: "Csoportvezető", none: "Nincs", add: "Új felhasználó", namePlaceholder: "pl. Kiss János", codePlaceholder: "pl. E-1009", password: "Kezdő jelszó", passwordPlaceholder: "min. 6 karakter", deleteWarning: "A felhasználó inaktiválásra kerül — a korábbi bejegyzései megmaradnak, de nem tud többé bejelentkezni.", confirmDeleteMsg: "Biztosan eltávolítod ezt a felhasználót?", role_employee: "Dolgozó", role_supervisor: "Csoportvezető", role_admin: "Admin" },
     locations: { title: "Telephelyek kezelése", country: "Ország", city: "Város", plant: "Gyár neve", add: "Új telephely", countryPlaceholder: "pl. Magyarország", cityPlaceholder: "pl. Győr", plantPlaceholder: "pl. Győr Gyár 2", deleteWarning: "A telephely véglegesen törlődik a listából. A korábbi bejegyzésekben a neve megmarad.", confirmDeleteMsg: "Biztosan törlöd ezt a telephelyet?" },
@@ -45,7 +45,7 @@ const TRANSLATIONS = {
     dashboard: { expected: "Expected hours", worked: "Worked hours", difference: "Difference", recent: "Recent entries", newEntryCta: "New daily entry", empty: "No entries yet this month." },
     approval: { title: "Pending entries", filterEmployee: "Employee", filterStatus: "Status", all: "All", empty: "No entries awaiting approval.", reasonPrompt: "Reason for return (required)", reasonPlaceholder: "Describe what needs to be fixed…", adminOverride: "Override allowance on approval" },
     correction: { title: "Correct an approved record", original: "Original value", newValue: "New value", reason: "Reason for correction (required)", reasonPlaceholder: "Why is this change needed…", history: "Correction history", pickRecord: "Pick an approved record from the list", noRecords: "No approved records to correct." },
-    exportView: { title: "Monthly payroll export", month: "Month", group: "Group / supervisor", allGroups: "All groups", name: "Name", expected: "Expected monthly hours", worked: "Worked hours", difference: "Difference", allowance: "Allowance", extraAllowance: "Extra allowance (weighted avg. %)", extraAllowanceHours: "Allowance hours", approver: "Approver name", lastMod: "Last modified", lastModBy: "Last modified by", noneYet: "—", allowanceSetting: "Allowance amount / day", allowanceSaved: "Allowance saved" },
+    exportView: { title: "Monthly payroll export", month: "Month", periodFrom: "Period from", periodTo: "Period to", rangeInvalid: "The start month cannot be later than the end month.", group: "Group / supervisor", allGroups: "All groups", name: "Name", expected: "Expected monthly hours", worked: "Worked hours", difference: "Difference", allowance: "Allowance", extraAllowance: "Extra allowance (weighted avg. %)", extraAllowanceHours: "Allowance hours", approver: "Approver name", lastMod: "Last modified", lastModBy: "Last modified by", noneYet: "—", allowanceSetting: "Allowance amount / day", allowanceSaved: "Allowance saved" },
     audit: { title: "Audit log", entry: "Record", changedBy: "Changed by", changedAt: "Time", reason: "Reason", empty: "No changes logged yet." },
     users: { title: "Manage users", name: "Full name", code: "Employee code", role: "Role", supervisor: "Supervisor", none: "None", add: "Add user", namePlaceholder: "e.g. John Smith", codePlaceholder: "e.g. E-1009", password: "Initial password", passwordPlaceholder: "min. 6 characters", deleteWarning: "The user will be deactivated — their past entries stay, but they can no longer sign in.", confirmDeleteMsg: "Remove this user?", role_employee: "Employee", role_supervisor: "Supervisor", role_admin: "Admin" },
     locations: { title: "Manage locations", country: "Country", city: "City", plant: "Plant name", add: "Add location", countryPlaceholder: "e.g. Hungary", cityPlaceholder: "e.g. Győr", plantPlaceholder: "e.g. Győr Plant 2", deleteWarning: "The location will be permanently removed from the list. Past entries keep its name.", confirmDeleteMsg: "Remove this location?" },
@@ -65,7 +65,7 @@ const TRANSLATIONS = {
     dashboard: { expected: "Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", recent: "Letzte Einträge", newEntryCta: "Neuer Tageseintrag", empty: "Diesen Monat noch keine Einträge." },
     approval: { title: "Ausstehende Einträge", filterEmployee: "Mitarbeiter", filterStatus: "Status", all: "Alle", empty: "Keine Einträge zur Freigabe.", reasonPrompt: "Grund der Zurückweisung (erforderlich)", reasonPlaceholder: "Beschreibe, was korrigiert werden muss…", adminOverride: "Zulage bei Freigabe überschreiben" },
     correction: { title: "Freigegebenen Eintrag korrigieren", original: "Ursprünglicher Wert", newValue: "Neuer Wert", reason: "Korrekturgrund (erforderlich)", reasonPlaceholder: "Warum ist die Änderung nötig…", history: "Korrekturverlauf", pickRecord: "Wähle einen freigegebenen Eintrag aus der Liste", noRecords: "Keine freigegebenen Einträge zu korrigieren." },
-    exportView: { title: "Monatlicher Abrechnungsexport", month: "Monat", group: "Gruppe / Vorgesetzter", allGroups: "Alle Gruppen", name: "Name", expected: "Monatliche Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", allowance: "Zulage", extraAllowance: "Zusätzliche Zulage (gew. Ø %)", extraAllowanceHours: "Zulagenstunden", approver: "Name des Freigebers", lastMod: "Letzte Änderung", lastModBy: "Geändert von", noneYet: "—", allowanceSetting: "Zulagenbetrag / Tag", allowanceSaved: "Zulage gespeichert" },
+    exportView: { title: "Monatlicher Abrechnungsexport", month: "Monat", periodFrom: "Zeitraum von", periodTo: "Zeitraum bis", rangeInvalid: "Der Startmonat darf nicht nach dem Endmonat liegen.", group: "Gruppe / Vorgesetzter", allGroups: "Alle Gruppen", name: "Name", expected: "Monatliche Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", allowance: "Zulage", extraAllowance: "Zusätzliche Zulage (gew. Ø %)", extraAllowanceHours: "Zulagenstunden", approver: "Name des Freigebers", lastMod: "Letzte Änderung", lastModBy: "Geändert von", noneYet: "—", allowanceSetting: "Zulagenbetrag / Tag", allowanceSaved: "Zulage gespeichert" },
     audit: { title: "Prüfprotokoll", entry: "Eintrag", changedBy: "Geändert von", changedAt: "Zeitpunkt", reason: "Grund", empty: "Noch keine Änderungen protokolliert." },
     users: { title: "Benutzer verwalten", name: "Vollständiger Name", code: "Mitarbeiternummer", role: "Rolle", supervisor: "Vorgesetzter", none: "Keiner", add: "Benutzer hinzufügen", namePlaceholder: "z. B. Max Mustermann", codePlaceholder: "z. B. E-1009", password: "Anfangspasswort", passwordPlaceholder: "min. 6 Zeichen", deleteWarning: "Der Benutzer wird deaktiviert — bisherige Einträge bleiben erhalten, Anmeldung ist nicht mehr möglich.", confirmDeleteMsg: "Diesen Benutzer entfernen?", role_employee: "Mitarbeiter", role_supervisor: "Vorgesetzter", role_admin: "Admin" },
     locations: { title: "Standorte verwalten", country: "Land", city: "Stadt", plant: "Werksname", add: "Standort hinzufügen", countryPlaceholder: "z. B. Ungarn", cityPlaceholder: "z. B. Győr", plantPlaceholder: "z. B. Győr Werk 2", deleteWarning: "Der Standort wird endgültig aus der Liste entfernt. Vergangene Einträge behalten seinen Namen.", confirmDeleteMsg: "Diesen Standort entfernen?" },
@@ -85,7 +85,7 @@ const TRANSLATIONS = {
     dashboard: { expected: "Ore așteptate", worked: "Ore lucrate", difference: "Diferență", recent: "Înregistrări recente", newEntryCta: "Înregistrare zilnică nouă", empty: "Nicio înregistrare luna aceasta." },
     approval: { title: "Înregistrări în așteptare", filterEmployee: "Angajat", filterStatus: "Stare", all: "Toate", empty: "Nu există înregistrări de aprobat.", reasonPrompt: "Motivul returnării (obligatoriu)", reasonPlaceholder: "Descrie ce trebuie corectat…", adminOverride: "Suprascrie indemnizația la aprobare" },
     correction: { title: "Corectează o înregistrare aprobată", original: "Valoare originală", newValue: "Valoare nouă", reason: "Motivul corecției (obligatoriu)", reasonPlaceholder: "De ce este necesară modificarea…", history: "Istoric corecții", pickRecord: "Alege o înregistrare aprobată din listă", noRecords: "Nu există înregistrări aprobate de corectat." },
-    exportView: { title: "Export lunar pentru salarizare", month: "Lună", group: "Grup / șef", allGroups: "Toate grupurile", name: "Nume", expected: "Ore lunare așteptate", worked: "Ore lucrate", difference: "Diferență", allowance: "Diurnă", extraAllowance: "Indemnizație suplimentară (medie ponderată %)", extraAllowanceHours: "Ore cu indemnizație", approver: "Numele aprobatorului", lastMod: "Ultima modificare", lastModBy: "Modificat de", noneYet: "—", allowanceSetting: "Suma diurnei / zi", allowanceSaved: "Diurnă salvată" },
+    exportView: { title: "Export lunar pentru salarizare", month: "Lună", periodFrom: "Perioada de la", periodTo: "Perioada până la", rangeInvalid: "Luna de început nu poate fi ulterioară lunii de sfârșit.", group: "Grup / șef", allGroups: "Toate grupurile", name: "Nume", expected: "Ore lunare așteptate", worked: "Ore lucrate", difference: "Diferență", allowance: "Diurnă", extraAllowance: "Indemnizație suplimentară (medie ponderată %)", extraAllowanceHours: "Ore cu indemnizație", approver: "Numele aprobatorului", lastMod: "Ultima modificare", lastModBy: "Modificat de", noneYet: "—", allowanceSetting: "Suma diurnei / zi", allowanceSaved: "Diurnă salvată" },
     audit: { title: "Jurnal audit", entry: "Înregistrare", changedBy: "Modificat de", changedAt: "Data/ora", reason: "Motiv", empty: "Nicio modificare înregistrată încă." },
     users: { title: "Gestionare utilizatori", name: "Nume complet", code: "Cod angajat", role: "Rol", supervisor: "Șef de echipă", none: "Niciunul", add: "Adaugă utilizator", namePlaceholder: "ex. Ion Popescu", codePlaceholder: "ex. E-1009", password: "Parolă inițială", passwordPlaceholder: "min. 6 caractere", deleteWarning: "Utilizatorul va fi dezactivat — înregistrările anterioare rămân, dar nu se mai poate autentifica.", confirmDeleteMsg: "Elimini acest utilizator?", role_employee: "Angajat", role_supervisor: "Șef de echipă", role_admin: "Admin" },
     locations: { title: "Gestionare locații", country: "Țară", city: "Oraș", plant: "Numele uzinei", add: "Adaugă locație", countryPlaceholder: "ex. Ungaria", cityPlaceholder: "ex. Győr", plantPlaceholder: "ex. Uzina Győr 2", deleteWarning: "Locația va fi eliminată definitiv din listă. Înregistrările anterioare păstrează numele ei.", confirmDeleteMsg: "Elimini această locație?" },
@@ -105,7 +105,7 @@ const TRANSLATIONS = {
     dashboard: { expected: "Beklenen saat", worked: "Çalışılan saat", difference: "Fark", recent: "Son kayıtlar", newEntryCta: "Yeni günlük kayıt", empty: "Bu ay henüz kayıt yok." },
     approval: { title: "Bekleyen kayıtlar", filterEmployee: "Çalışan", filterStatus: "Durum", all: "Tümü", empty: "Onay bekleyen kayıt yok.", reasonPrompt: "İade nedeni (zorunlu)", reasonPlaceholder: "Nelerin düzeltilmesi gerektiğini yaz…", adminOverride: "Onayda ödeneği geçersiz kıl" },
     correction: { title: "Onaylı kaydı düzelt", original: "Orijinal değer", newValue: "Yeni değer", reason: "Düzeltme nedeni (zorunlu)", reasonPlaceholder: "Değişiklik neden gerekli…", history: "Düzeltme geçmişi", pickRecord: "Listeden onaylı bir kayıt seç", noRecords: "Düzeltilecek onaylı kayıt yok." },
-    exportView: { title: "Aylık bordro dışa aktarımı", month: "Ay", group: "Grup / yönetici", allGroups: "Tüm gruplar", name: "İsim", expected: "Aylık beklenen saat", worked: "Çalışılan saat", difference: "Fark", allowance: "Yevmiye", extraAllowance: "Ek ödenek (ağırlıklı ort. %)", extraAllowanceHours: "Ek ödenek saati", approver: "Onaylayan adı", lastMod: "Son değişiklik", lastModBy: "Değiştiren", noneYet: "—", allowanceSetting: "Yevmiye tutarı / gün", allowanceSaved: "Yevmiye kaydedildi" },
+    exportView: { title: "Aylık bordro dışa aktarımı", month: "Ay", periodFrom: "Dönem başlangıcı", periodTo: "Dönem bitişi", rangeInvalid: "Başlangıç ayı bitiş ayından sonra olamaz.", group: "Grup / yönetici", allGroups: "Tüm gruplar", name: "İsim", expected: "Aylık beklenen saat", worked: "Çalışılan saat", difference: "Fark", allowance: "Yevmiye", extraAllowance: "Ek ödenek (ağırlıklı ort. %)", extraAllowanceHours: "Ek ödenek saati", approver: "Onaylayan adı", lastMod: "Son değişiklik", lastModBy: "Değiştiren", noneYet: "—", allowanceSetting: "Yevmiye tutarı / gün", allowanceSaved: "Yevmiye kaydedildi" },
     audit: { title: "Denetim günlüğü", entry: "Kayıt", changedBy: "Değiştiren", changedAt: "Zaman", reason: "Neden", empty: "Henüz kayıtlı değişiklik yok." },
     users: { title: "Kullanıcı yönetimi", name: "Ad Soyad", code: "Personel kodu", role: "Rol", supervisor: "Ekip lideri", none: "Yok", add: "Kullanıcı ekle", namePlaceholder: "örn. Ahmet Yılmaz", codePlaceholder: "örn. E-1009", password: "Başlangıç şifresi", passwordPlaceholder: "en az 6 karakter", deleteWarning: "Kullanıcı devre dışı bırakılır — geçmiş kayıtları kalır, ancak artık giriş yapamaz.", confirmDeleteMsg: "Bu kullanıcıyı kaldırmak istiyor musun?", role_employee: "Çalışan", role_supervisor: "Ekip lideri", role_admin: "Yönetici" },
     locations: { title: "Lokasyonları yönet", country: "Ülke", city: "Şehir", plant: "Tesis adı", add: "Lokasyon ekle", countryPlaceholder: "örn. Macaristan", cityPlaceholder: "örn. Győr", plantPlaceholder: "örn. Győr Tesis 2", deleteWarning: "Lokasyon listeden kalıcı olarak kaldırılır. Geçmiş kayıtlar adını korur.", confirmDeleteMsg: "Bu lokasyonu kaldırmak istiyor musun?" },
@@ -658,8 +658,16 @@ function CorrectionView({ t, user, entries, employees, auditLog, onCorrect }) {
 /* Export view                                                            */
 /* ---------------------------------------------------------------------- */
 
+function monthsInRange(from, to) {
+  const [fy, fm] = from.split("-").map(Number);
+  const [ty, tm] = to.split("-").map(Number);
+  return Math.max(1, (ty - fy) * 12 + (tm - fm) + 1);
+}
+
 function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onExport }) {
-  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const [fromMonth, setFromMonth] = useState(thisMonth);
+  const [toMonth, setToMonth] = useState(thisMonth);
   const [group, setGroup] = useState("all");
   const [allowanceDraft, setAllowanceDraft] = useState(settings.allowancePerDay);
   const [savedFlash, setSavedFlash] = useState(false);
@@ -668,11 +676,13 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
 
   const supervisors = employees.filter((e) => e.role === "supervisor");
   const groupEmployees = group === "all" ? employees.filter((e) => e.role !== "admin") : employees.filter((e) => e.supervisorId === group);
+  const rangeValid = fromMonth <= toMonth;
+  const expectedHours = settings.expectedMonthlyHours * (rangeValid ? monthsInRange(fromMonth, toMonth) : 1);
 
   const rows = groupEmployees.map((emp) => {
-    const empEntries = entries.filter((e) => e.employeeId === emp.id && monthKey(e.date) === month && (e.status === "approved" || e.status === "corrected"));
+    const empEntries = entries.filter((e) => e.employeeId === emp.id && monthKey(e.date) >= fromMonth && monthKey(e.date) <= toMonth && (e.status === "approved" || e.status === "corrected"));
     const worked = Math.round(empEntries.reduce((s, e) => s + e.hours, 0) * 100) / 100;
-    const diff = Math.round((settings.expectedMonthlyHours - worked) * 100) / 100;
+    const diff = Math.round((expectedHours - worked) * 100) / 100;
     const days = new Set(empEntries.map((e) => e.date)).size;
     const allowance = days * settings.allowancePerDay;
     const extraAllowanceHours = Math.round(empEntries.reduce((s, e) => s + (e.extraAllowanceHours || 0), 0) * 100) / 100;
@@ -684,7 +694,7 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
     const mods = empEntries.filter((e) => e.lastModifiedAt).sort((a, b) => (a.lastModifiedAt < b.lastModifiedAt ? 1 : -1));
     const lastMod = mods[0];
     return {
-      name: emp.name, expected: settings.expectedMonthlyHours, worked, diff, allowance, extraAllowancePercent, extraAllowanceHours,
+      name: emp.name, expected: expectedHours, worked, diff, allowance, extraAllowancePercent, extraAllowanceHours,
       approverName: approverName || t("exportView.noneYet"),
       lastModDate: lastMod ? lastMod.lastModifiedAt.slice(0, 10) : t("exportView.noneYet"),
       lastModBy: lastMod ? employees.find((x) => x.id === lastMod.lastModifiedBy)?.name : t("exportView.noneYet"),
@@ -703,9 +713,14 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
       <h2 className="section-title">{t("exportView.title")}</h2>
       <div className="filter-row">
         <div className="field">
-          <label className="field-label">{t("exportView.month")}</label>
-          <input type="month" className="input input-sm" value={month} onChange={(e) => setMonth(e.target.value)} />
+          <label className="field-label">{t("exportView.periodFrom")}</label>
+          <input type="month" className="input input-sm" value={fromMonth} onChange={(e) => setFromMonth(e.target.value)} />
         </div>
+        <div className="field">
+          <label className="field-label">{t("exportView.periodTo")}</label>
+          <input type="month" className="input input-sm" value={toMonth} onChange={(e) => setToMonth(e.target.value)} />
+        </div>
+        {!rangeValid && <div className="login-error">{t("exportView.rangeInvalid")}</div>}
         <div className="field">
           <label className="field-label">{t("exportView.group")}</label>
           <select className="input input-sm" value={group} onChange={(e) => setGroup(e.target.value)}>
@@ -726,10 +741,10 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
             {savedFlash && <span className="inline-saved">{t("exportView.allowanceSaved")}</span>}
           </div>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={() => onExport("csv", month, group)}>
+        <button className="btn btn-secondary btn-sm" disabled={!rangeValid} onClick={() => onExport("csv", fromMonth, toMonth, group)}>
           <Download size={14} /> {t("buttons.exportCsv")}
         </button>
-        <button className="btn btn-primary btn-sm" onClick={() => onExport("xlsx", month, group)}>
+        <button className="btn btn-primary btn-sm" disabled={!rangeValid} onClick={() => onExport("xlsx", fromMonth, toMonth, group)}>
           <FileSpreadsheet size={14} /> {t("buttons.exportXlsx")}
         </button>
       </div>
@@ -1378,7 +1393,7 @@ function ChangePasswordModal({ t, onSubmit, onClose }) {
 const NAV_ICONS = { dashboard: ListChecks, newEntry: Plus, approvals: Check, corrections: FileEdit, export: FileSpreadsheet, auditLog: ClipboardList, users: Users, locations: MapPin, departments: Building2 };
 
 export default function App() {
-  const [lang, setLang] = useState("hu");
+  const [lang, setLang] = useState("en");
   const [user, setUser] = useState(null);
   const [tab, setTab] = useState("dashboard");
   const [entries, setEntries] = useState([]);
@@ -1592,9 +1607,9 @@ export default function App() {
     flashToast(t("account.changed"));
   }
 
-  async function doExport(kind, month, group) {
+  async function doExport(kind, from, to, group) {
     try {
-      const result = kind === "csv" ? await api.exportCsv(month, group) : await api.exportXlsx(month, group);
+      const result = kind === "csv" ? await api.exportCsv(from, to, group) : await api.exportXlsx(from, to, group);
       downloadBlob(result);
     } catch (err) {
       flashToast(err.message);

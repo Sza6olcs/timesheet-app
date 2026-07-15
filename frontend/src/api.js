@@ -83,8 +83,8 @@ export const api = {
   getSettings: () => request("/settings"),
   updateSettings: (payload) => request("/settings", { method: "PUT", body: JSON.stringify(payload) }),
 
-  exportCsv: (month, group) => requestBlob(`/export/csv?month=${month}${group && group !== "all" ? `&group=${group}` : ""}`),
-  exportXlsx: (month, group) => requestBlob(`/export/xlsx?month=${month}${group && group !== "all" ? `&group=${group}` : ""}`),
+  exportCsv: (from, to, group) => requestBlob(`/export/csv?from=${from}&to=${to}${group && group !== "all" ? `&group=${group}` : ""}`),
+  exportXlsx: (from, to, group) => requestBlob(`/export/xlsx?from=${from}&to=${to}${group && group !== "all" ? `&group=${group}` : ""}`),
 };
 
 export function downloadBlob({ blob, filename }) {

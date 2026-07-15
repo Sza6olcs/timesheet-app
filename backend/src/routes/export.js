@@ -15,12 +15,23 @@ function getSettings() {
   };
 }
 
-function buildRows(month, group) {
+// Hány naptári hónapot fed le a [from, to] tartomány (ÉÉÉÉ-HH formátumban), végpontokkal együtt.
+function monthsInRange(from, to) {
+  const [fy, fm] = from.split("-").map(Number);
+  const [ty, tm] = to.split("-").map(Number);
+  return Math.max(1, (ty - fy) * 12 + (tm - fm) + 1);
+}
+
+function buildRows(from, to, group) {
   const settings = getSettings();
   let employees = db.prepare("SELECT * FROM employees WHERE active = 1 AND role != 'admin'").all();
   if (group && group !== "all") employees = employees.filter((e) => e.supervisor_id === group);
 
-  const allEntries = db.prepare("SELECT * FROM timesheet_entries WHERE work_date LIKE ?").all(`${month}%`);
+  const months = monthsInRange(from, to);
+  const expectedHours = settings.expectedMonthlyHours * months;
+
+  const allEntries = db.prepare("SELECT * FROM timesheet_entries").all()
+    .filter((e) => { const m = e.work_date.slice(0, 7); return m >= from && m <= to; });
   const employeeById = new Map(db.prepare("SELECT * FROM employees").all().map((e) => [e.id, e]));
 
   return employees.map((emp) => {
@@ -28,7 +39,7 @@ function buildRows(month, group) {
       (e) => e.employee_id === emp.id && (e.status === "approved" || e.status === "corrected")
     );
     const worked = Math.round(empEntries.reduce((s, e) => s + e.worked_hours, 0) * 100) / 100;
-    const diff = Math.round((settings.expectedMonthlyHours - worked) * 100) / 100;
+    const diff = Math.round((expectedHours - worked) * 100) / 100;
     const days = new Set(empEntries.map((e) => e.work_date)).size;
     const allowance = days * settings.allowancePerDay;
     const extraAllowanceHours = Math.round(empEntries.reduce((s, e) => s + (e.extra_allowance_hours || 0), 0) * 100) / 100;
@@ -42,7 +53,7 @@ function buildRows(month, group) {
 
     return {
       name: emp.name,
-      expected: settings.expectedMonthlyHours,
+      expected: expectedHours,
       worked,
       diff,
       allowance,
@@ -55,7 +66,7 @@ function buildRows(month, group) {
   });
 }
 
-const HEADERS = ["Név", "Havi várható munkaidő", "Ledolgozott órák", "Különbség", "Napidíj (EUR)", "Extra pótlék (súlyozott átl. %)", "Extra pótlék órák", "Jóváhagyó neve", "Utolsó módosítás dátuma", "Utolsó módosítást végző"];
+const HEADERS = ["Name", "Expected monthly hours", "Worked hours", "Difference", "Allowance (EUR)", "Extra allowance (weighted avg. %)", "Extra allowance hours", "Approver name", "Last modified date", "Last modified by"];
 
 function csvEscape(val) {
   const s = String(val ?? "");
@@ -63,28 +74,41 @@ function csvEscape(val) {
   return s;
 }
 
-router.get("/csv", requireAuth, requireRole("admin"), (req, res) => {
-  const { month, group } = req.query;
-  if (!month) return res.status(400).json({ error: "A 'month' paraméter (ÉÉÉÉ-HH) kötelező." });
+function parseRange(query) {
+  const { from, to, month } = query;
+  // Visszafelé kompatibilitás: ha csak a régi 'month' paramétert kapjuk, azt használjuk mindkét végpontnak.
+  const fromMonth = from || month;
+  const toMonth = to || month;
+  if (!fromMonth || !toMonth) return null;
+  return { fromMonth, toMonth };
+}
 
-  const rows = buildRows(month, group);
+router.get("/csv", requireAuth, requireRole("admin"), (req, res) => {
+  const range = parseRange(req.query);
+  if (!range) return res.status(400).json({ error: "The 'from' and 'to' parameters (YYYY-MM) are required." });
+  const { fromMonth, toMonth } = range;
+
+  const rows = buildRows(fromMonth, toMonth, req.query.group);
   const lines = [HEADERS.map(csvEscape).join(",")];
   rows.forEach((r) => {
     lines.push([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowancePercent, r.extraAllowanceHours, r.approverName, r.lastModDate, r.lastModBy].map(csvEscape).join(","));
   });
 
+  const rangeLabel = fromMonth === toMonth ? fromMonth : `${fromMonth}_to_${toMonth}`;
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("Content-Disposition", `attachment; filename="timesheet_${month}.csv"`);
-  res.send("\uFEFF" + lines.join("\n"));
+  res.setHeader("Content-Disposition", `attachment; filename="timesheet_${rangeLabel}.csv"`);
+  res.send("﻿" + lines.join("\n"));
 });
 
 router.get("/xlsx", requireAuth, requireRole("admin"), async (req, res) => {
-  const { month, group } = req.query;
-  if (!month) return res.status(400).json({ error: "A 'month' paraméter (ÉÉÉÉ-HH) kötelező." });
+  const range = parseRange(req.query);
+  if (!range) return res.status(400).json({ error: "The 'from' and 'to' parameters (YYYY-MM) are required." });
+  const { fromMonth, toMonth } = range;
 
-  const rows = buildRows(month, group);
+  const rows = buildRows(fromMonth, toMonth, req.query.group);
+  const rangeLabel = fromMonth === toMonth ? fromMonth : `${fromMonth}_to_${toMonth}`;
   const wb = new ExcelJS.Workbook();
-  const ws = wb.addWorksheet(month);
+  const ws = wb.addWorksheet(rangeLabel);
   ws.addRow(HEADERS);
   ws.getRow(1).font = { bold: true };
   rows.forEach((r) => {
@@ -93,7 +117,7 @@ router.get("/xlsx", requireAuth, requireRole("admin"), async (req, res) => {
   ws.columns.forEach((col) => (col.width = 22));
 
   res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-  res.setHeader("Content-Disposition", `attachment; filename="timesheet_${month}.xlsx"`);
+  res.setHeader("Content-Disposition", `attachment; filename="timesheet_${rangeLabel}.xlsx"`);
   await wb.xlsx.write(res);
   res.end();
 });
