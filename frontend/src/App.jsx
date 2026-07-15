@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Clock, Check, X, Download, LogOut, ListChecks, FileEdit, FileSpreadsheet, ClipboardList, Plus, AlertCircle, Users } from "lucide-react";
+import { Clock, Check, X, Download, LogOut, ListChecks, FileEdit, FileSpreadsheet, ClipboardList, Plus, AlertCircle, Users, Pencil } from "lucide-react";
 import { api, setToken, getToken, downloadBlob } from "./api.js";
 
 /* ---------------------------------------------------------------------- */
@@ -30,12 +30,12 @@ const TRANSLATIONS = {
     nav: { dashboard: "Kezdőlap", newEntry: "Új bejegyzés", approvals: "Jóváhagyás", corrections: "Javítás", export: "Export", auditLog: "Auditnapló", users: "Felhasználók", logout: "Kilépés" },
     status: { draft: "Piszkozat", submitted: "Beküldve", approved: "Jóváhagyva", returned: "Visszaküldve", corrected: "Javítva" },
     shift: { day: "Nappalos", night: "Éjszakás" },
-    fields: { date: "Dátum", start: "Kezdés", end: "Végzés", hours: "Ledolgozott óra", shift: "Műszakkód", location: "Munkavégzés helye", comment: "Megjegyzés" },
-    buttons: { saveDraft: "Mentés piszkozatként", submit: "Beküldés jóváhagyásra", approve: "Jóváhagyás", return: "Visszaküldés", save: "Mentés", cancel: "Mégse", bulkApprove: "Kijelöltek jóváhagyása", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Hozzáadás", delete: "Eltávolítás", confirmDelete: "Törlés megerősítése" },
+    fields: { date: "Dátum", start: "Kezdés", end: "Végzés", hours: "Ledolgozott óra", shift: "Műszakkód", location: "Munkavégzés helye", comment: "Megjegyzés", extraAllowance: "Extra pótlék" },
+    buttons: { saveDraft: "Mentés piszkozatként", submit: "Beküldés jóváhagyásra", approve: "Jóváhagyás", return: "Visszaküldés", save: "Mentés", cancel: "Mégse", bulkApprove: "Kijelöltek jóváhagyása", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Hozzáadás", delete: "Eltávolítás", edit: "Szerkesztés", confirmDelete: "Törlés megerősítése" },
     dashboard: { expected: "Várható óra", worked: "Ledolgozott óra", difference: "Különbség", recent: "Legutóbbi bejegyzések", newEntryCta: "Új napi bejegyzés", empty: "Még nincs bejegyzés ebben a hónapban." },
     approval: { title: "Függőben lévő bejegyzések", filterEmployee: "Dolgozó", filterStatus: "Státusz", all: "Mind", empty: "Nincs jóváhagyásra váró tétel.", reasonPrompt: "Visszaküldés oka (kötelező)", reasonPlaceholder: "Írd le, mit kell javítani…" },
     correction: { title: "Jóváhagyott rekord javítása", original: "Eredeti érték", newValue: "Új érték", reason: "Javítás oka (kötelező)", reasonPlaceholder: "Miért szükséges a módosítás…", history: "Módosítási előzmény", pickRecord: "Válassz jóváhagyott rekordot a listából", noRecords: "Nincs jóváhagyott rekord javításra." },
-    exportView: { title: "Havi elszámolási export", month: "Hónap", group: "Csoport / vezető", allGroups: "Minden csoport", name: "Név", expected: "Havi várható munkaidő", worked: "Ledolgozott órák", difference: "Különbség", allowance: "Napidíj", approver: "Jóváhagyó neve", lastMod: "Utolsó módosítás", lastModBy: "Utolsó módosítást végző", noneYet: "—", allowanceSetting: "Napidíj összege / nap", allowanceSaved: "Napidíj mentve" },
+    exportView: { title: "Havi elszámolási export", month: "Hónap", group: "Csoport / vezető", allGroups: "Minden csoport", name: "Név", expected: "Havi várható munkaidő", worked: "Ledolgozott órák", difference: "Különbség", allowance: "Napidíj", extraAllowance: "Extra pótlék", approver: "Jóváhagyó neve", lastMod: "Utolsó módosítás", lastModBy: "Utolsó módosítást végző", noneYet: "—", allowanceSetting: "Napidíj összege / nap", allowanceSaved: "Napidíj mentve" },
     audit: { title: "Auditnapló", entry: "Rekord", changedBy: "Módosító", changedAt: "Időpont", reason: "Ok", empty: "Nincs még módosítási bejegyzés." },
     users: { title: "Felhasználók kezelése", name: "Teljes név", code: "Dolgozói azonosító", role: "Szerepkör", supervisor: "Csoportvezető", none: "Nincs", add: "Új felhasználó", namePlaceholder: "pl. Kiss János", codePlaceholder: "pl. E-1009", password: "Kezdő jelszó", passwordPlaceholder: "min. 6 karakter", deleteWarning: "A felhasználó inaktiválásra kerül — a korábbi bejegyzései megmaradnak, de nem tud többé bejelentkezni.", confirmDeleteMsg: "Biztosan eltávolítod ezt a felhasználót?", role_employee: "Dolgozó", role_supervisor: "Csoportvezető", role_admin: "Admin" },
     misc: { hoursShort: "óra", huf: "Ft", loggedInAs: "Bejelentkezve mint", confirmToast: "Sikeresen mentve" },
@@ -47,12 +47,12 @@ const TRANSLATIONS = {
     nav: { dashboard: "Dashboard", newEntry: "New entry", approvals: "Approvals", corrections: "Corrections", export: "Export", auditLog: "Audit log", users: "Users", logout: "Sign out" },
     status: { draft: "Draft", submitted: "Submitted", approved: "Approved", returned: "Returned", corrected: "Corrected" },
     shift: { day: "Day shift", night: "Night shift" },
-    fields: { date: "Date", start: "Start", end: "End", hours: "Worked hours", shift: "Shift code", location: "Work location", comment: "Comment" },
-    buttons: { saveDraft: "Save as draft", submit: "Submit for approval", approve: "Approve", return: "Return", save: "Save", cancel: "Cancel", bulkApprove: "Approve selected", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Add", delete: "Remove", confirmDelete: "Confirm removal" },
+    fields: { date: "Date", start: "Start", end: "End", hours: "Worked hours", shift: "Shift code", location: "Work location", comment: "Comment", extraAllowance: "Extra allowance" },
+    buttons: { saveDraft: "Save as draft", submit: "Submit for approval", approve: "Approve", return: "Return", save: "Save", cancel: "Cancel", bulkApprove: "Approve selected", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Add", delete: "Remove", edit: "Edit", confirmDelete: "Confirm removal" },
     dashboard: { expected: "Expected hours", worked: "Worked hours", difference: "Difference", recent: "Recent entries", newEntryCta: "New daily entry", empty: "No entries yet this month." },
     approval: { title: "Pending entries", filterEmployee: "Employee", filterStatus: "Status", all: "All", empty: "No entries awaiting approval.", reasonPrompt: "Reason for return (required)", reasonPlaceholder: "Describe what needs to be fixed…" },
     correction: { title: "Correct an approved record", original: "Original value", newValue: "New value", reason: "Reason for correction (required)", reasonPlaceholder: "Why is this change needed…", history: "Correction history", pickRecord: "Pick an approved record from the list", noRecords: "No approved records to correct." },
-    exportView: { title: "Monthly payroll export", month: "Month", group: "Group / supervisor", allGroups: "All groups", name: "Name", expected: "Expected monthly hours", worked: "Worked hours", difference: "Difference", allowance: "Allowance", approver: "Approver name", lastMod: "Last modified", lastModBy: "Last modified by", noneYet: "—", allowanceSetting: "Allowance amount / day", allowanceSaved: "Allowance saved" },
+    exportView: { title: "Monthly payroll export", month: "Month", group: "Group / supervisor", allGroups: "All groups", name: "Name", expected: "Expected monthly hours", worked: "Worked hours", difference: "Difference", allowance: "Allowance", extraAllowance: "Extra allowance", approver: "Approver name", lastMod: "Last modified", lastModBy: "Last modified by", noneYet: "—", allowanceSetting: "Allowance amount / day", allowanceSaved: "Allowance saved" },
     audit: { title: "Audit log", entry: "Record", changedBy: "Changed by", changedAt: "Time", reason: "Reason", empty: "No changes logged yet." },
     users: { title: "Manage users", name: "Full name", code: "Employee code", role: "Role", supervisor: "Supervisor", none: "None", add: "Add user", namePlaceholder: "e.g. John Smith", codePlaceholder: "e.g. E-1009", password: "Initial password", passwordPlaceholder: "min. 6 characters", deleteWarning: "The user will be deactivated — their past entries stay, but they can no longer sign in.", confirmDeleteMsg: "Remove this user?", role_employee: "Employee", role_supervisor: "Supervisor", role_admin: "Admin" },
     misc: { hoursShort: "h", huf: "HUF", loggedInAs: "Signed in as", confirmToast: "Saved successfully" },
@@ -64,12 +64,12 @@ const TRANSLATIONS = {
     nav: { dashboard: "Übersicht", newEntry: "Neuer Eintrag", approvals: "Freigaben", corrections: "Korrekturen", export: "Export", auditLog: "Prüfprotokoll", users: "Benutzer", logout: "Abmelden" },
     status: { draft: "Entwurf", submitted: "Eingereicht", approved: "Freigegeben", returned: "Zurückgewiesen", corrected: "Korrigiert" },
     shift: { day: "Tagschicht", night: "Nachtschicht" },
-    fields: { date: "Datum", start: "Beginn", end: "Ende", hours: "Geleistete Stunden", shift: "Schichtcode", location: "Arbeitsort", comment: "Bemerkung" },
-    buttons: { saveDraft: "Als Entwurf speichern", submit: "Zur Freigabe einreichen", approve: "Freigeben", return: "Zurückweisen", save: "Speichern", cancel: "Abbrechen", bulkApprove: "Auswahl freigeben", exportCsv: "CSV exportieren", exportXlsx: "XLSX exportieren", add: "Hinzufügen", delete: "Entfernen", confirmDelete: "Entfernen bestätigen" },
+    fields: { date: "Datum", start: "Beginn", end: "Ende", hours: "Geleistete Stunden", shift: "Schichtcode", location: "Arbeitsort", comment: "Bemerkung", extraAllowance: "Zusätzliche Zulage" },
+    buttons: { saveDraft: "Als Entwurf speichern", submit: "Zur Freigabe einreichen", approve: "Freigeben", return: "Zurückweisen", save: "Speichern", cancel: "Abbrechen", bulkApprove: "Auswahl freigeben", exportCsv: "CSV exportieren", exportXlsx: "XLSX exportieren", add: "Hinzufügen", delete: "Entfernen", edit: "Bearbeiten", confirmDelete: "Entfernen bestätigen" },
     dashboard: { expected: "Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", recent: "Letzte Einträge", newEntryCta: "Neuer Tageseintrag", empty: "Diesen Monat noch keine Einträge." },
     approval: { title: "Ausstehende Einträge", filterEmployee: "Mitarbeiter", filterStatus: "Status", all: "Alle", empty: "Keine Einträge zur Freigabe.", reasonPrompt: "Grund der Zurückweisung (erforderlich)", reasonPlaceholder: "Beschreibe, was korrigiert werden muss…" },
     correction: { title: "Freigegebenen Eintrag korrigieren", original: "Ursprünglicher Wert", newValue: "Neuer Wert", reason: "Korrekturgrund (erforderlich)", reasonPlaceholder: "Warum ist die Änderung nötig…", history: "Korrekturverlauf", pickRecord: "Wähle einen freigegebenen Eintrag aus der Liste", noRecords: "Keine freigegebenen Einträge zu korrigieren." },
-    exportView: { title: "Monatlicher Abrechnungsexport", month: "Monat", group: "Gruppe / Vorgesetzter", allGroups: "Alle Gruppen", name: "Name", expected: "Monatliche Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", allowance: "Zulage", approver: "Name des Freigebers", lastMod: "Letzte Änderung", lastModBy: "Geändert von", noneYet: "—", allowanceSetting: "Zulagenbetrag / Tag", allowanceSaved: "Zulage gespeichert" },
+    exportView: { title: "Monatlicher Abrechnungsexport", month: "Monat", group: "Gruppe / Vorgesetzter", allGroups: "Alle Gruppen", name: "Name", expected: "Monatliche Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", allowance: "Zulage", extraAllowance: "Zusätzliche Zulage", approver: "Name des Freigebers", lastMod: "Letzte Änderung", lastModBy: "Geändert von", noneYet: "—", allowanceSetting: "Zulagenbetrag / Tag", allowanceSaved: "Zulage gespeichert" },
     audit: { title: "Prüfprotokoll", entry: "Eintrag", changedBy: "Geändert von", changedAt: "Zeitpunkt", reason: "Grund", empty: "Noch keine Änderungen protokolliert." },
     users: { title: "Benutzer verwalten", name: "Vollständiger Name", code: "Mitarbeiternummer", role: "Rolle", supervisor: "Vorgesetzter", none: "Keiner", add: "Benutzer hinzufügen", namePlaceholder: "z. B. Max Mustermann", codePlaceholder: "z. B. E-1009", password: "Anfangspasswort", passwordPlaceholder: "min. 6 Zeichen", deleteWarning: "Der Benutzer wird deaktiviert — bisherige Einträge bleiben erhalten, Anmeldung ist nicht mehr möglich.", confirmDeleteMsg: "Diesen Benutzer entfernen?", role_employee: "Mitarbeiter", role_supervisor: "Vorgesetzter", role_admin: "Admin" },
     misc: { hoursShort: "Std.", huf: "HUF", loggedInAs: "Angemeldet als", confirmToast: "Erfolgreich gespeichert" },
@@ -81,12 +81,12 @@ const TRANSLATIONS = {
     nav: { dashboard: "Panou", newEntry: "Înregistrare nouă", approvals: "Aprobări", corrections: "Corecții", export: "Export", auditLog: "Jurnal audit", users: "Utilizatori", logout: "Deconectare" },
     status: { draft: "Ciornă", submitted: "Trimis", approved: "Aprobat", returned: "Returnat", corrected: "Corectat" },
     shift: { day: "Tură de zi", night: "Tură de noapte" },
-    fields: { date: "Data", start: "Început", end: "Sfârșit", hours: "Ore lucrate", shift: "Cod tură", location: "Locul de muncă", comment: "Comentariu" },
-    buttons: { saveDraft: "Salvează ca ciornă", submit: "Trimite spre aprobare", approve: "Aprobă", return: "Returnează", save: "Salvează", cancel: "Anulează", bulkApprove: "Aprobă selecția", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Adaugă", delete: "Elimină", confirmDelete: "Confirmă eliminarea" },
+    fields: { date: "Data", start: "Început", end: "Sfârșit", hours: "Ore lucrate", shift: "Cod tură", location: "Locul de muncă", comment: "Comentariu", extraAllowance: "Indemnizație suplimentară" },
+    buttons: { saveDraft: "Salvează ca ciornă", submit: "Trimite spre aprobare", approve: "Aprobă", return: "Returnează", save: "Salvează", cancel: "Anulează", bulkApprove: "Aprobă selecția", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Adaugă", delete: "Elimină", edit: "Editează", confirmDelete: "Confirmă eliminarea" },
     dashboard: { expected: "Ore așteptate", worked: "Ore lucrate", difference: "Diferență", recent: "Înregistrări recente", newEntryCta: "Înregistrare zilnică nouă", empty: "Nicio înregistrare luna aceasta." },
     approval: { title: "Înregistrări în așteptare", filterEmployee: "Angajat", filterStatus: "Stare", all: "Toate", empty: "Nu există înregistrări de aprobat.", reasonPrompt: "Motivul returnării (obligatoriu)", reasonPlaceholder: "Descrie ce trebuie corectat…" },
     correction: { title: "Corectează o înregistrare aprobată", original: "Valoare originală", newValue: "Valoare nouă", reason: "Motivul corecției (obligatoriu)", reasonPlaceholder: "De ce este necesară modificarea…", history: "Istoric corecții", pickRecord: "Alege o înregistrare aprobată din listă", noRecords: "Nu există înregistrări aprobate de corectat." },
-    exportView: { title: "Export lunar pentru salarizare", month: "Lună", group: "Grup / șef", allGroups: "Toate grupurile", name: "Nume", expected: "Ore lunare așteptate", worked: "Ore lucrate", difference: "Diferență", allowance: "Diurnă", approver: "Numele aprobatorului", lastMod: "Ultima modificare", lastModBy: "Modificat de", noneYet: "—", allowanceSetting: "Suma diurnei / zi", allowanceSaved: "Diurnă salvată" },
+    exportView: { title: "Export lunar pentru salarizare", month: "Lună", group: "Grup / șef", allGroups: "Toate grupurile", name: "Nume", expected: "Ore lunare așteptate", worked: "Ore lucrate", difference: "Diferență", allowance: "Diurnă", extraAllowance: "Indemnizație suplimentară", approver: "Numele aprobatorului", lastMod: "Ultima modificare", lastModBy: "Modificat de", noneYet: "—", allowanceSetting: "Suma diurnei / zi", allowanceSaved: "Diurnă salvată" },
     audit: { title: "Jurnal audit", entry: "Înregistrare", changedBy: "Modificat de", changedAt: "Data/ora", reason: "Motiv", empty: "Nicio modificare înregistrată încă." },
     users: { title: "Gestionare utilizatori", name: "Nume complet", code: "Cod angajat", role: "Rol", supervisor: "Șef de echipă", none: "Niciunul", add: "Adaugă utilizator", namePlaceholder: "ex. Ion Popescu", codePlaceholder: "ex. E-1009", password: "Parolă inițială", passwordPlaceholder: "min. 6 caractere", deleteWarning: "Utilizatorul va fi dezactivat — înregistrările anterioare rămân, dar nu se mai poate autentifica.", confirmDeleteMsg: "Elimini acest utilizator?", role_employee: "Angajat", role_supervisor: "Șef de echipă", role_admin: "Admin" },
     misc: { hoursShort: "h", huf: "HUF", loggedInAs: "Autentificat ca", confirmToast: "Salvat cu succes" },
@@ -98,12 +98,12 @@ const TRANSLATIONS = {
     nav: { dashboard: "Panel", newEntry: "Yeni kayıt", approvals: "Onaylar", corrections: "Düzeltmeler", export: "Dışa aktar", auditLog: "Denetim günlüğü", users: "Kullanıcılar", logout: "Çıkış yap" },
     status: { draft: "Taslak", submitted: "Gönderildi", approved: "Onaylandı", returned: "İade edildi", corrected: "Düzeltildi" },
     shift: { day: "Gündüz vardiyası", night: "Gece vardiyası" },
-    fields: { date: "Tarih", start: "Başlangıç", end: "Bitiş", hours: "Çalışılan saat", shift: "Vardiya kodu", location: "Çalışma yeri", comment: "Not" },
-    buttons: { saveDraft: "Taslak olarak kaydet", submit: "Onaya gönder", approve: "Onayla", return: "İade et", save: "Kaydet", cancel: "Vazgeç", bulkApprove: "Seçilenleri onayla", exportCsv: "CSV dışa aktar", exportXlsx: "XLSX dışa aktar", add: "Ekle", delete: "Kaldır", confirmDelete: "Kaldırmayı onayla" },
+    fields: { date: "Tarih", start: "Başlangıç", end: "Bitiş", hours: "Çalışılan saat", shift: "Vardiya kodu", location: "Çalışma yeri", comment: "Not", extraAllowance: "Ek ödenek" },
+    buttons: { saveDraft: "Taslak olarak kaydet", submit: "Onaya gönder", approve: "Onayla", return: "İade et", save: "Kaydet", cancel: "Vazgeç", bulkApprove: "Seçilenleri onayla", exportCsv: "CSV dışa aktar", exportXlsx: "XLSX dışa aktar", add: "Ekle", delete: "Kaldır", edit: "Düzenle", confirmDelete: "Kaldırmayı onayla" },
     dashboard: { expected: "Beklenen saat", worked: "Çalışılan saat", difference: "Fark", recent: "Son kayıtlar", newEntryCta: "Yeni günlük kayıt", empty: "Bu ay henüz kayıt yok." },
     approval: { title: "Bekleyen kayıtlar", filterEmployee: "Çalışan", filterStatus: "Durum", all: "Tümü", empty: "Onay bekleyen kayıt yok.", reasonPrompt: "İade nedeni (zorunlu)", reasonPlaceholder: "Nelerin düzeltilmesi gerektiğini yaz…" },
     correction: { title: "Onaylı kaydı düzelt", original: "Orijinal değer", newValue: "Yeni değer", reason: "Düzeltme nedeni (zorunlu)", reasonPlaceholder: "Değişiklik neden gerekli…", history: "Düzeltme geçmişi", pickRecord: "Listeden onaylı bir kayıt seç", noRecords: "Düzeltilecek onaylı kayıt yok." },
-    exportView: { title: "Aylık bordro dışa aktarımı", month: "Ay", group: "Grup / yönetici", allGroups: "Tüm gruplar", name: "İsim", expected: "Aylık beklenen saat", worked: "Çalışılan saat", difference: "Fark", allowance: "Yevmiye", approver: "Onaylayan adı", lastMod: "Son değişiklik", lastModBy: "Değiştiren", noneYet: "—", allowanceSetting: "Yevmiye tutarı / gün", allowanceSaved: "Yevmiye kaydedildi" },
+    exportView: { title: "Aylık bordro dışa aktarımı", month: "Ay", group: "Grup / yönetici", allGroups: "Tüm gruplar", name: "İsim", expected: "Aylık beklenen saat", worked: "Çalışılan saat", difference: "Fark", allowance: "Yevmiye", extraAllowance: "Ek ödenek", approver: "Onaylayan adı", lastMod: "Son değişiklik", lastModBy: "Değiştiren", noneYet: "—", allowanceSetting: "Yevmiye tutarı / gün", allowanceSaved: "Yevmiye kaydedildi" },
     audit: { title: "Denetim günlüğü", entry: "Kayıt", changedBy: "Değiştiren", changedAt: "Zaman", reason: "Neden", empty: "Henüz kayıtlı değişiklik yok." },
     users: { title: "Kullanıcı yönetimi", name: "Ad Soyad", code: "Personel kodu", role: "Rol", supervisor: "Ekip lideri", none: "Yok", add: "Kullanıcı ekle", namePlaceholder: "örn. Ahmet Yılmaz", codePlaceholder: "örn. E-1009", password: "Başlangıç şifresi", passwordPlaceholder: "en az 6 karakter", deleteWarning: "Kullanıcı devre dışı bırakılır — geçmiş kayıtları kalır, ancak artık giriş yapamaz.", confirmDeleteMsg: "Bu kullanıcıyı kaldırmak istiyor musun?", role_employee: "Çalışan", role_supervisor: "Ekip lideri", role_admin: "Yönetici" },
     misc: { hoursShort: "sa", huf: "HUF", loggedInAs: "Giriş yapan", confirmToast: "Başarıyla kaydedildi" },
@@ -233,6 +233,7 @@ function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
     end: "14:00",
     shift: "day",
     comment: "",
+    extraAllowance: "",
   });
   const hours = computeHours(form.start, form.end);
   const loc = LOCATIONS[locIdx];
@@ -243,7 +244,7 @@ function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
   }
 
   function payload() {
-    return { ...form, country: loc.country, city: loc.city, plant: loc.plant };
+    return { ...form, extraAllowance: Number(form.extraAllowance) || 0, country: loc.country, city: loc.city, plant: loc.plant };
   }
 
   return (
@@ -278,6 +279,10 @@ function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
             ))}
           </select>
         </div>
+        <div className="field">
+          <label className="field-label">{t("fields.extraAllowance")}</label>
+          <input type="number" min="0" step="100" className="input" value={form.extraAllowance} onChange={(e) => set("extraAllowance", e.target.value)} />
+        </div>
         <div className="field field-wide">
           <label className="field-label">{t("fields.comment")}</label>
           <textarea className="input" rows={2} value={form.comment} onChange={(e) => set("comment", e.target.value)} />
@@ -310,7 +315,7 @@ function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
 /* Dashboard                                                              */
 /* ---------------------------------------------------------------------- */
 
-function Dashboard({ t, user, entries, settings, onOpenNewEntry }) {
+function Dashboard({ t, lang, user, entries, settings, onOpenNewEntry }) {
   const thisMonth = new Date().toISOString().slice(0, 7);
   const own = entries.filter((e) => e.employeeId === user.id);
   const monthEntries = own.filter((e) => monthKey(e.date) === thisMonth);
@@ -353,6 +358,9 @@ function Dashboard({ t, user, entries, settings, onOpenNewEntry }) {
               <div className="ledger-time">{e.start}–{e.end}</div>
               <div className="ledger-hours">{e.hours} {t("misc.hoursShort")}</div>
               <div className="ledger-loc">{e.plant}</div>
+              {e.extraAllowance > 0 && (
+                <div className="ledger-extra">+{e.extraAllowance.toLocaleString(LOCALE_MAP[lang])} {t("misc.huf")}</div>
+              )}
               <Stamp status={e.status} t={t} />
             </div>
           ))}
@@ -590,12 +598,13 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
     const diff = Math.round((settings.expectedMonthlyHours - worked) * 100) / 100;
     const days = new Set(empEntries.map((e) => e.date)).size;
     const allowance = days * settings.allowancePerDay;
+    const extraAllowance = Math.round(empEntries.reduce((s, e) => s + (e.extraAllowance || 0), 0) * 100) / 100;
     const approverIds = [...new Set(empEntries.map((e) => e.approvedBy).filter(Boolean))];
     const approverName = approverIds.length ? employees.find((x) => x.id === approverIds[0])?.name : "";
     const mods = empEntries.filter((e) => e.lastModifiedAt).sort((a, b) => (a.lastModifiedAt < b.lastModifiedAt ? 1 : -1));
     const lastMod = mods[0];
     return {
-      name: emp.name, expected: settings.expectedMonthlyHours, worked, diff, allowance,
+      name: emp.name, expected: settings.expectedMonthlyHours, worked, diff, allowance, extraAllowance,
       approverName: approverName || t("exportView.noneYet"),
       lastModDate: lastMod ? lastMod.lastModifiedAt.slice(0, 10) : t("exportView.noneYet"),
       lastModBy: lastMod ? employees.find((x) => x.id === lastMod.lastModifiedBy)?.name : t("exportView.noneYet"),
@@ -654,6 +663,7 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
               <th>{t("exportView.worked")}</th>
               <th>{t("exportView.difference")}</th>
               <th>{t("exportView.allowance")}</th>
+              <th>{t("exportView.extraAllowance")}</th>
               <th>{t("exportView.approver")}</th>
               <th>{t("exportView.lastMod")}</th>
               <th>{t("exportView.lastModBy")}</th>
@@ -667,6 +677,7 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
                 <td>{r.worked}</td>
                 <td className={r.diff > 0 ? "warn" : "good"}>{r.diff}</td>
                 <td>{r.allowance.toLocaleString(LOCALE_MAP[lang])} {t("misc.huf")}</td>
+                <td>{r.extraAllowance.toLocaleString(LOCALE_MAP[lang])} {t("misc.huf")}</td>
                 <td>{r.approverName}</td>
                 <td>{r.lastModDate}</td>
                 <td>{r.lastModBy}</td>
@@ -722,14 +733,50 @@ function AuditLogView({ t, lang, auditLog, employees }) {
 /* Users view                                                             */
 /* ---------------------------------------------------------------------- */
 
-function UsersView({ t, employees, currentUser, onAdd, onDelete }) {
+function UsersView({ t, employees, currentUser, onAdd, onDelete, onUpdate }) {
   const [form, setForm] = useState({ name: "", code: "", role: "employee", supervisorId: "", password: "" });
   const [confirmingId, setConfirmingId] = useState(null);
   const [formError, setFormError] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [editError, setEditError] = useState("");
   const supervisors = employees.filter((e) => e.role === "supervisor");
 
   function set(k, v) {
     setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  function startEdit(emp) {
+    setEditingId(emp.id);
+    setEditForm({ name: emp.name, code: emp.code, role: emp.role, supervisorId: emp.supervisorId || "" });
+    setEditError("");
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditForm(null);
+    setEditError("");
+  }
+
+  function setEdit(k, v) {
+    setEditForm((f) => ({ ...f, [k]: v }));
+  }
+
+  async function saveEdit(id) {
+    if (!editForm.name.trim() || !editForm.code.trim()) return;
+    setEditError("");
+    try {
+      await onUpdate(id, {
+        name: editForm.name.trim(),
+        code: editForm.code.trim(),
+        role: editForm.role,
+        supervisorId: editForm.role === "employee" ? editForm.supervisorId || null : null,
+      });
+      setEditingId(null);
+      setEditForm(null);
+    } catch (err) {
+      setEditError(err.message);
+    }
   }
 
   async function submit() {
@@ -809,6 +856,46 @@ function UsersView({ t, employees, currentUser, onAdd, onDelete }) {
           <tbody>
             {employees.map((e) => {
               const sup = employees.find((x) => x.id === e.supervisorId);
+              const isEditing = editingId === e.id;
+
+              if (isEditing) {
+                return (
+                  <tr key={e.id}>
+                    <td><input className="input input-sm" value={editForm.name} onChange={(ev) => setEdit("name", ev.target.value)} /></td>
+                    <td><input className="input input-sm mono" value={editForm.code} onChange={(ev) => setEdit("code", ev.target.value)} /></td>
+                    <td>
+                      <select className="input input-sm" value={editForm.role} onChange={(ev) => setEdit("role", ev.target.value)}>
+                        <option value="employee">{t("users.role_employee")}</option>
+                        <option value="supervisor">{t("users.role_supervisor")}</option>
+                        <option value="admin">{t("users.role_admin")}</option>
+                      </select>
+                    </td>
+                    <td>
+                      {editForm.role === "employee" ? (
+                        <select className="input input-sm" value={editForm.supervisorId} onChange={(ev) => setEdit("supervisorId", ev.target.value)}>
+                          <option value="">{t("users.none")}</option>
+                          {supervisors.map((s) => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        t("users.none")
+                      )}
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <button className="icon-btn approve" title={t("buttons.save")} disabled={!editForm.name.trim() || !editForm.code.trim()} onClick={() => saveEdit(e.id)}>
+                          <Check size={14} />
+                        </button>
+                        <button className="icon-btn reject" title={t("buttons.cancel")} onClick={cancelEdit}>
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              }
+
               return (
                 <tr key={e.id}>
                   <td>{e.name}{e.id === currentUser.id ? " •" : ""}</td>
@@ -816,11 +903,16 @@ function UsersView({ t, employees, currentUser, onAdd, onDelete }) {
                   <td>{t("users.role_" + e.role)}</td>
                   <td>{sup ? sup.name : t("users.none")}</td>
                   <td>
-                    {e.id !== currentUser.id && (
-                      <button className="icon-btn reject" title={t("buttons.delete")} onClick={() => setConfirmingId(e.id)}>
-                        <X size={14} />
+                    <div className="row-actions">
+                      <button className="icon-btn" title={t("buttons.edit")} onClick={() => startEdit(e)}>
+                        <Pencil size={14} />
                       </button>
-                    )}
+                      {e.id !== currentUser.id && (
+                        <button className="icon-btn reject" title={t("buttons.delete")} onClick={() => setConfirmingId(e.id)}>
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -828,6 +920,7 @@ function UsersView({ t, employees, currentUser, onAdd, onDelete }) {
           </tbody>
         </table>
       </div>
+      {editError && <div className="login-error" style={{ marginTop: "0.6rem" }}>{editError}</div>}
 
       {confirmingId && (
         <div className="modal-backdrop" onClick={() => setConfirmingId(null)}>
@@ -994,6 +1087,11 @@ export default function App() {
     setEmployees(await api.listEmployees());
   }
 
+  async function updateEmployee(id, payload) {
+    await api.updateEmployee(id, payload);
+    setEmployees(await api.listEmployees());
+  }
+
   async function deleteEmployee(id) {
     try {
       await api.deleteEmployee(id);
@@ -1090,13 +1188,13 @@ export default function App() {
         </aside>
 
         <main className="main">
-          {tab === "dashboard" && <Dashboard t={t} user={user} entries={entries} settings={settings} onOpenNewEntry={() => setTab("newEntry")} />}
+          {tab === "dashboard" && <Dashboard t={t} lang={lang} user={user} entries={entries} settings={settings} onOpenNewEntry={() => setTab("newEntry")} />}
           {tab === "newEntry" && <EntryForm t={t} onCancel={() => setTab("dashboard")} onSave={saveDraft} onSubmit={submitEntry} busy={busy} />}
           {tab === "approvals" && isSupervisorish && <ApprovalView t={t} user={user} entries={entries} employees={employees} onApprove={approveEntry} onReturn={returnEntry} />}
           {tab === "corrections" && isSupervisorish && <CorrectionView t={t} user={user} entries={entries} employees={employees} auditLog={auditLog} onCorrect={correctEntry} />}
           {tab === "export" && isAdmin && <ExportView t={t} lang={lang} entries={entries} employees={employees} settings={settings} onSaveSettings={saveSettings} onExport={doExport} />}
           {tab === "auditLog" && isAdmin && <AuditLogView t={t} lang={lang} auditLog={auditLog} employees={employees} />}
-          {tab === "users" && isAdmin && <UsersView t={t} employees={employees} currentUser={user} onAdd={addEmployee} onDelete={deleteEmployee} />}
+          {tab === "users" && isAdmin && <UsersView t={t} employees={employees} currentUser={user} onAdd={addEmployee} onDelete={deleteEmployee} onUpdate={updateEmployee} />}
         </main>
       </div>
 

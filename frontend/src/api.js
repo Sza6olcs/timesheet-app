@@ -55,6 +55,7 @@ export const api = {
 
   listEmployees: () => request("/employees"),
   addEmployee: (payload) => request("/employees", { method: "POST", body: JSON.stringify(payload) }),
+  updateEmployee: (id, payload) => request(`/employees/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
   deleteEmployee: (id) => request(`/employees/${id}`, { method: "DELETE" }),
 
   listEntries: (params = {}) => {

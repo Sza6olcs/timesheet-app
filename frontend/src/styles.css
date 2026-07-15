@@ -109,6 +109,7 @@ h1, h2, h3, .section-title, .login-title, .brand span {
 .ledger-time { font-family: 'IBM Plex Mono', monospace; color: var(--slate); width: 96px; }
 .ledger-hours { font-family: 'IBM Plex Mono', monospace; width: 70px; }
 .ledger-loc { flex: 1; color: var(--slate); font-size: 0.78rem; }
+.ledger-extra { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--green); white-space: nowrap; }
 .ledger-emp { width: 130px; font-weight: 500; }
 .row-actions { display: flex; gap: 0.35rem; }
 .icon-btn { border: 1px solid var(--line); background: #fff; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; }

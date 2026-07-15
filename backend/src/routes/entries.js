@@ -18,6 +18,7 @@ function toPublic(row) {
     city: row.city,
     plant: row.plant_name,
     comment: row.comment,
+    extraAllowance: row.extra_allowance,
     status: row.status,
     approvedBy: row.approved_by,
     approvedAt: row.approved_at,
@@ -72,7 +73,7 @@ router.get("/", requireAuth, (req, res) => {
 });
 
 router.post("/", requireAuth, (req, res) => {
-  const { date, start, end, shift, country, city, plant, comment, submit } = req.body || {};
+  const { date, start, end, shift, country, city, plant, comment, extraAllowance, submit } = req.body || {};
   if (!date || !start || !end || !shift || !country || !city || !plant) {
     return res.status(400).json({ error: "Hiányzó kötelező mező." });
   }
@@ -89,6 +90,7 @@ router.post("/", requireAuth, (req, res) => {
     city,
     plant_name: plant,
     comment: comment || "",
+    extra_allowance: Math.max(0, Number(extraAllowance) || 0),
     status: submit ? "submitted" : "draft",
     approved_by: null,
     approved_at: null,
@@ -99,9 +101,9 @@ router.post("/", requireAuth, (req, res) => {
   };
   db.prepare(`
     INSERT INTO timesheet_entries
-      (id, employee_id, work_date, start_time, end_time, worked_hours, shift_code, country, city, plant_name, comment, status, approved_by, approved_at, last_modified_by, last_modified_at, created_at, updated_at)
+      (id, employee_id, work_date, start_time, end_time, worked_hours, shift_code, country, city, plant_name, comment, extra_allowance, status, approved_by, approved_at, last_modified_by, last_modified_at, created_at, updated_at)
     VALUES
-      (@id, @employee_id, @work_date, @start_time, @end_time, @worked_hours, @shift_code, @country, @city, @plant_name, @comment, @status, @approved_by, @approved_at, @last_modified_by, @last_modified_at, @created_at, @updated_at)
+      (@id, @employee_id, @work_date, @start_time, @end_time, @worked_hours, @shift_code, @country, @city, @plant_name, @comment, @extra_allowance, @status, @approved_by, @approved_at, @last_modified_by, @last_modified_at, @created_at, @updated_at)
   `).run(row);
 
   res.status(201).json(toPublic(row));
@@ -116,7 +118,7 @@ router.patch("/:id", requireAuth, (req, res) => {
     return res.status(409).json({ error: "Csak piszkozat vagy visszaküldött bejegyzés szerkeszthető." });
   }
 
-  const { date, start, end, shift, country, city, plant, comment, submit } = req.body || {};
+  const { date, start, end, shift, country, city, plant, comment, extraAllowance, submit } = req.body || {};
   const now = new Date().toISOString();
   const updated = {
     work_date: date ?? existing.work_date,
@@ -127,6 +129,7 @@ router.patch("/:id", requireAuth, (req, res) => {
     city: city ?? existing.city,
     plant_name: plant ?? existing.plant_name,
     comment: comment ?? existing.comment,
+    extra_allowance: extraAllowance !== undefined ? Math.max(0, Number(extraAllowance) || 0) : existing.extra_allowance,
     status: submit ? "submitted" : "draft",
     updated_at: now,
   };
@@ -136,7 +139,7 @@ router.patch("/:id", requireAuth, (req, res) => {
     UPDATE timesheet_entries SET
       work_date=@work_date, start_time=@start_time, end_time=@end_time, worked_hours=@worked_hours,
       shift_code=@shift_code, country=@country, city=@city, plant_name=@plant_name, comment=@comment,
-      status=@status, updated_at=@updated_at
+      extra_allowance=@extra_allowance, status=@status, updated_at=@updated_at
     WHERE id = @id
   `).run({ ...updated, id: req.params.id });
 

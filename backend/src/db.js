@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS timesheet_entries (
   approved_at TEXT,
   last_modified_by TEXT REFERENCES employees(id),
   last_modified_at TEXT,
+  extra_allowance REAL NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -64,6 +65,13 @@ CREATE INDEX IF NOT EXISTS idx_entries_employee ON timesheet_entries(employee_id
 CREATE INDEX IF NOT EXISTS idx_entries_status ON timesheet_entries(status);
 CREATE INDEX IF NOT EXISTS idx_audit_entry ON entry_audit_log(entry_id);
 `);
+
+// Migráció: extra_allowance oszlop pótlása már létező adatbázisokon
+// (a fenti CREATE TABLE IF NOT EXISTS nem érinti a már létrehozott táblát).
+const entryCols = db.prepare("PRAGMA table_info(timesheet_entries)").all().map((c) => c.name);
+if (!entryCols.includes("extra_allowance")) {
+  db.exec("ALTER TABLE timesheet_entries ADD COLUMN extra_allowance REAL NOT NULL DEFAULT 0");
+}
 
 // Default settings if missing
 const defaults = { allowance_per_day: "4500", expected_monthly_hours: "168" };

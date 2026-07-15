@@ -31,6 +31,7 @@ function buildRows(month, group) {
     const diff = Math.round((settings.expectedMonthlyHours - worked) * 100) / 100;
     const days = new Set(empEntries.map((e) => e.work_date)).size;
     const allowance = days * settings.allowancePerDay;
+    const extraAllowance = Math.round(empEntries.reduce((s, e) => s + (e.extra_allowance || 0), 0) * 100) / 100;
     const approverIds = [...new Set(empEntries.map((e) => e.approved_by).filter(Boolean))];
     const approverName = approverIds.length ? employeeById.get(approverIds[0])?.name || "" : "";
     const mods = empEntries.filter((e) => e.last_modified_at).sort((a, b) => (a.last_modified_at < b.last_modified_at ? 1 : -1));
@@ -42,6 +43,7 @@ function buildRows(month, group) {
       worked,
       diff,
       allowance,
+      extraAllowance,
       approverName,
       lastModDate: lastMod ? lastMod.last_modified_at.slice(0, 10) : "",
       lastModBy: lastMod ? employeeById.get(lastMod.last_modified_by)?.name || "" : "",
@@ -49,7 +51,7 @@ function buildRows(month, group) {
   });
 }
 
-const HEADERS = ["Név", "Havi várható munkaidő", "Ledolgozott órák", "Különbség", "Napidíj", "Jóváhagyó neve", "Utolsó módosítás dátuma", "Utolsó módosítást végző"];
+const HEADERS = ["Név", "Havi várható munkaidő", "Ledolgozott órák", "Különbség", "Napidíj", "Extra pótlék", "Jóváhagyó neve", "Utolsó módosítás dátuma", "Utolsó módosítást végző"];
 
 function csvEscape(val) {
   const s = String(val ?? "");
@@ -64,7 +66,7 @@ router.get("/csv", requireAuth, requireRole("admin"), (req, res) => {
   const rows = buildRows(month, group);
   const lines = [HEADERS.map(csvEscape).join(",")];
   rows.forEach((r) => {
-    lines.push([r.name, r.expected, r.worked, r.diff, r.allowance, r.approverName, r.lastModDate, r.lastModBy].map(csvEscape).join(","));
+    lines.push([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowance, r.approverName, r.lastModDate, r.lastModBy].map(csvEscape).join(","));
   });
 
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
@@ -82,7 +84,7 @@ router.get("/xlsx", requireAuth, requireRole("admin"), async (req, res) => {
   ws.addRow(HEADERS);
   ws.getRow(1).font = { bold: true };
   rows.forEach((r) => {
-    ws.addRow([r.name, r.expected, r.worked, r.diff, r.allowance, r.approverName, r.lastModDate, r.lastModBy]);
+    ws.addRow([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowance, r.approverName, r.lastModDate, r.lastModBy]);
   });
   ws.columns.forEach((col) => (col.width = 22));
 
