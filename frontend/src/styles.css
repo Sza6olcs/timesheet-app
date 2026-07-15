@@ -151,6 +151,8 @@ h1, h2, h3, .section-title, .login-title, .brand span {
 .panel { background: var(--card); border: 1px solid var(--line); padding: 1.1rem; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
 .field-wide { grid-column: 1 / -1; }
+.field-checkbox { display: flex; align-items: flex-end; }
+.field-label-checkbox { display: flex; align-items: center; gap: 0.45rem; text-transform: none; letter-spacing: normal; font-size: 0.85rem; color: var(--ink); margin: 0.9rem 0 0.35rem; }
 .input { width: 100%; font-family: 'IBM Plex Sans', sans-serif; font-size: 0.85rem; padding: 0.5rem 0.6rem; border: 1px solid var(--line); background: #fff; color: var(--ink); }
 .input-sm { width: auto; padding: 0.4rem 0.5rem; font-size: 0.78rem; }
 textarea.input { resize: vertical; }

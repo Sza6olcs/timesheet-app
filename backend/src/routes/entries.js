@@ -22,6 +22,7 @@ function toPublic(row) {
     extraAllowanceHours: row.extra_allowance_hours,
     projectNumber: row.project_number,
     department: row.department,
+    perDiem: !!row.per_diem,
     status: row.status,
     approvedBy: row.approved_by,
     approvedAt: row.approved_at,
@@ -76,7 +77,7 @@ router.get("/", requireAuth, (req, res) => {
 });
 
 router.post("/", requireAuth, (req, res) => {
-  const { date, start, end, shift, country, city, plant, comment, extraAllowance, extraAllowanceHours, projectNumber, department, submit } = req.body || {};
+  const { date, start, end, shift, country, city, plant, comment, extraAllowance, extraAllowanceHours, projectNumber, department, perDiem, submit } = req.body || {};
   if (!date || !start || !end || !shift || !country || !city || !plant) {
     return res.status(400).json({ error: "Hiányzó kötelező mező." });
   }
@@ -98,6 +99,7 @@ router.post("/", requireAuth, (req, res) => {
     extra_allowance_hours: Math.min(workedHours, Math.max(0, Number(extraAllowanceHours) || 0)),
     project_number: projectNumber || "",
     department: department || "",
+    per_diem: perDiem ? 1 : 0,
     status: submit ? "submitted" : "draft",
     approved_by: null,
     approved_at: null,
@@ -108,9 +110,9 @@ router.post("/", requireAuth, (req, res) => {
   };
   db.prepare(`
     INSERT INTO timesheet_entries
-      (id, employee_id, work_date, start_time, end_time, worked_hours, shift_code, country, city, plant_name, comment, extra_allowance, extra_allowance_hours, project_number, department, status, approved_by, approved_at, last_modified_by, last_modified_at, created_at, updated_at)
+      (id, employee_id, work_date, start_time, end_time, worked_hours, shift_code, country, city, plant_name, comment, extra_allowance, extra_allowance_hours, project_number, department, per_diem, status, approved_by, approved_at, last_modified_by, last_modified_at, created_at, updated_at)
     VALUES
-      (@id, @employee_id, @work_date, @start_time, @end_time, @worked_hours, @shift_code, @country, @city, @plant_name, @comment, @extra_allowance, @extra_allowance_hours, @project_number, @department, @status, @approved_by, @approved_at, @last_modified_by, @last_modified_at, @created_at, @updated_at)
+      (@id, @employee_id, @work_date, @start_time, @end_time, @worked_hours, @shift_code, @country, @city, @plant_name, @comment, @extra_allowance, @extra_allowance_hours, @project_number, @department, @per_diem, @status, @approved_by, @approved_at, @last_modified_by, @last_modified_at, @created_at, @updated_at)
   `).run(row);
 
   res.status(201).json(toPublic(row));
@@ -125,7 +127,7 @@ router.patch("/:id", requireAuth, (req, res) => {
     return res.status(409).json({ error: "Csak piszkozat vagy visszaküldött bejegyzés szerkeszthető." });
   }
 
-  const { date, start, end, shift, country, city, plant, comment, extraAllowance, extraAllowanceHours, projectNumber, department, submit } = req.body || {};
+  const { date, start, end, shift, country, city, plant, comment, extraAllowance, extraAllowanceHours, projectNumber, department, perDiem, submit } = req.body || {};
   const now = new Date().toISOString();
   const updated = {
     work_date: date ?? existing.work_date,
@@ -139,6 +141,7 @@ router.patch("/:id", requireAuth, (req, res) => {
     extra_allowance: extraAllowance !== undefined ? Math.max(0, Number(extraAllowance) || 0) : existing.extra_allowance,
     project_number: projectNumber !== undefined ? projectNumber : existing.project_number,
     department: department !== undefined ? department : existing.department,
+    per_diem: perDiem !== undefined ? (perDiem ? 1 : 0) : existing.per_diem,
     status: submit ? "submitted" : "draft",
     updated_at: now,
   };
@@ -153,7 +156,7 @@ router.patch("/:id", requireAuth, (req, res) => {
       work_date=@work_date, start_time=@start_time, end_time=@end_time, worked_hours=@worked_hours,
       shift_code=@shift_code, country=@country, city=@city, plant_name=@plant_name, comment=@comment,
       extra_allowance=@extra_allowance, extra_allowance_hours=@extra_allowance_hours,
-      project_number=@project_number, department=@department, status=@status, updated_at=@updated_at
+      project_number=@project_number, department=@department, per_diem=@per_diem, status=@status, updated_at=@updated_at
     WHERE id = @id
   `).run({ ...updated, id: req.params.id });
 

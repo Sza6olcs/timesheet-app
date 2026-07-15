@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS timesheet_entries (
   extra_allowance_hours REAL NOT NULL DEFAULT 0,
   project_number TEXT DEFAULT '',
   department TEXT DEFAULT '',
+  per_diem INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -151,6 +152,9 @@ if (!entryCols.includes("project_number")) {
 }
 if (!entryCols.includes("department")) {
   db.exec("ALTER TABLE timesheet_entries ADD COLUMN department TEXT DEFAULT ''");
+}
+if (!entryCols.includes("per_diem")) {
+  db.exec("ALTER TABLE timesheet_entries ADD COLUMN per_diem INTEGER NOT NULL DEFAULT 0");
 }
 
 // Default settings if missing

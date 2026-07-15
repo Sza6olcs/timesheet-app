@@ -10,7 +10,6 @@ function getSettings() {
   const out = {};
   rows.forEach((r) => (out[r.key] = r.value));
   return {
-    allowancePerDay: Number(out.allowance_per_day || 4500),
     expectedMonthlyHours: Number(out.expected_monthly_hours || 168),
   };
 }
@@ -40,8 +39,7 @@ function buildRows(from, to, group) {
     );
     const worked = Math.round(empEntries.reduce((s, e) => s + e.worked_hours, 0) * 100) / 100;
     const diff = Math.round((expectedHours - worked) * 100) / 100;
-    const days = new Set(empEntries.map((e) => e.work_date)).size;
-    const allowance = days * settings.allowancePerDay;
+    const perDiemDays = new Set(empEntries.filter((e) => e.per_diem).map((e) => e.work_date)).size;
     const extraAllowanceHours = Math.round(empEntries.reduce((s, e) => s + (e.extra_allowance_hours || 0), 0) * 100) / 100;
     const extraAllowancePercent = extraAllowanceHours > 0
       ? Math.round((empEntries.reduce((s, e) => s + (e.extra_allowance || 0) * (e.extra_allowance_hours || 0), 0) / extraAllowanceHours) * 100) / 100
@@ -56,7 +54,7 @@ function buildRows(from, to, group) {
       expected: expectedHours,
       worked,
       diff,
-      allowance,
+      perDiemDays,
       extraAllowancePercent,
       extraAllowanceHours,
       approverName,
@@ -66,7 +64,8 @@ function buildRows(from, to, group) {
   });
 }
 
-const HEADERS = ["Name", "Expected monthly hours", "Worked hours", "Difference", "Allowance (EUR)", "Extra allowance (weighted avg. %)", "Extra allowance hours", "Approver name", "Last modified date", "Last modified by"];
+const HEADERS = ["Name", "Expected monthly hours", "Worked hours", "Difference", "Per diem days", "Extra allowance (weighted avg. %)", "Extra allowance hours", "Approver name", "Last modified date", "Last modified by"];
+const XLSX_HEADERS = ["Name", "Expected monthly hours", "Worked hours", "Difference", "Per diem days", "Per diem rate (EUR)", "Per diem total (EUR)", "Extra allowance (weighted avg. %)", "Extra allowance hours", "Approver name", "Last modified date", "Last modified by"];
 
 function csvEscape(val) {
   const s = String(val ?? "");
@@ -91,7 +90,7 @@ router.get("/csv", requireAuth, requireRole("admin", "payroll"), (req, res) => {
   const rows = buildRows(fromMonth, toMonth, req.query.group);
   const lines = [HEADERS.map(csvEscape).join(",")];
   rows.forEach((r) => {
-    lines.push([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowancePercent, r.extraAllowanceHours, r.approverName, r.lastModDate, r.lastModBy].map(csvEscape).join(","));
+    lines.push([r.name, r.expected, r.worked, r.diff, r.perDiemDays, r.extraAllowancePercent, r.extraAllowanceHours, r.approverName, r.lastModDate, r.lastModBy].map(csvEscape).join(","));
   });
 
   const rangeLabel = fromMonth === toMonth ? fromMonth : `${fromMonth}_to_${toMonth}`;
@@ -109,10 +108,17 @@ router.get("/xlsx", requireAuth, requireRole("admin", "payroll"), async (req, re
   const rangeLabel = fromMonth === toMonth ? fromMonth : `${fromMonth}_to_${toMonth}`;
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet(rangeLabel);
-  ws.addRow(HEADERS);
+  ws.addRow(XLSX_HEADERS);
   ws.getRow(1).font = { bold: true };
+  // A "Per diem rate" oszlopot a bérszámfejtő tölti ki, a "Per diem total" pedig
+  // élő Excel-képlettel (napok × ráta) számolja ki magától, ha a ráta megváltozik.
   rows.forEach((r) => {
-    ws.addRow([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowancePercent, r.extraAllowanceHours, r.approverName, r.lastModDate, r.lastModBy]);
+    const rowNumber = ws.rowCount + 1;
+    ws.addRow([
+      r.name, r.expected, r.worked, r.diff, r.perDiemDays, null,
+      { formula: `E${rowNumber}*F${rowNumber}` },
+      r.extraAllowancePercent, r.extraAllowanceHours, r.approverName, r.lastModDate, r.lastModBy,
+    ]);
   });
   ws.columns.forEach((col) => (col.width = 22));
 
