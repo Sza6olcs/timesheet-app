@@ -1,18 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Clock, Check, X, Download, LogOut, ListChecks, FileEdit, FileSpreadsheet, ClipboardList, Plus, AlertCircle, Users, Pencil } from "lucide-react";
+import { Clock, Check, X, Download, LogOut, ListChecks, FileEdit, FileSpreadsheet, ClipboardList, Plus, AlertCircle, Users, Pencil, MapPin } from "lucide-react";
 import { api, setToken, getToken, downloadBlob } from "./api.js";
-
-/* ---------------------------------------------------------------------- */
-/* Reference data (locations are a fixed catalogue, not user-editable)    */
-/* ---------------------------------------------------------------------- */
-
-const LOCATIONS = [
-  { country: "Magyarország", city: "Győr", plant: "Győr Gyár 1" },
-  { country: "Magyarország", city: "Kecskemét", plant: "Kecskemét Gyár" },
-  { country: "Németország", city: "Stuttgart", plant: "Stuttgart Werk" },
-  { country: "Románia", city: "Arad", plant: "Arad Üzem" },
-  { country: "Törökország", city: "Bursa", plant: "Bursa Tesis" },
-];
+import logo from "./assets/inducat-logo.png";
 
 const LANGS = ["hu", "en", "de", "ro", "tr"];
 const LOCALE_MAP = { hu: "hu-HU", en: "en-US", de: "de-DE", ro: "ro-RO", tr: "tr-TR" };
@@ -27,86 +16,91 @@ const TRANSLATIONS = {
     appTitle: "Időnyilvántartó",
     appSub: "Munkaidő rögzítés és jóváhagyás",
     login: { code: "Dolgozói kód", password: "Jelszó", lang: "Nyelv", button: "Belépés", error: "Hibás kód vagy jelszó.", loading: "Belépés…" },
-    nav: { dashboard: "Kezdőlap", newEntry: "Új bejegyzés", approvals: "Jóváhagyás", corrections: "Javítás", export: "Export", auditLog: "Auditnapló", users: "Felhasználók", logout: "Kilépés" },
+    nav: { dashboard: "Kezdőlap", newEntry: "Új bejegyzés", approvals: "Jóváhagyás", corrections: "Javítás", export: "Export", auditLog: "Auditnapló", users: "Felhasználók", locations: "Telephelyek", logout: "Kilépés" },
     status: { draft: "Piszkozat", submitted: "Beküldve", approved: "Jóváhagyva", returned: "Visszaküldve", corrected: "Javítva" },
     shift: { day: "Nappalos", night: "Éjszakás" },
-    fields: { date: "Dátum", start: "Kezdés", end: "Végzés", hours: "Ledolgozott óra", shift: "Műszakkód", location: "Munkavégzés helye", comment: "Megjegyzés", extraAllowance: "Extra pótlék" },
+    fields: { date: "Dátum", start: "Kezdés", end: "Végzés", hours: "Ledolgozott óra", shift: "Műszakkód", location: "Munkavégzés helye", comment: "Megjegyzés", extraAllowance: "Extra pótlék (%/óra)" },
     buttons: { saveDraft: "Mentés piszkozatként", submit: "Beküldés jóváhagyásra", approve: "Jóváhagyás", return: "Visszaküldés", save: "Mentés", cancel: "Mégse", bulkApprove: "Kijelöltek jóváhagyása", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Hozzáadás", delete: "Eltávolítás", edit: "Szerkesztés", confirmDelete: "Törlés megerősítése" },
     dashboard: { expected: "Várható óra", worked: "Ledolgozott óra", difference: "Különbség", recent: "Legutóbbi bejegyzések", newEntryCta: "Új napi bejegyzés", empty: "Még nincs bejegyzés ebben a hónapban." },
     approval: { title: "Függőben lévő bejegyzések", filterEmployee: "Dolgozó", filterStatus: "Státusz", all: "Mind", empty: "Nincs jóváhagyásra váró tétel.", reasonPrompt: "Visszaküldés oka (kötelező)", reasonPlaceholder: "Írd le, mit kell javítani…" },
     correction: { title: "Jóváhagyott rekord javítása", original: "Eredeti érték", newValue: "Új érték", reason: "Javítás oka (kötelező)", reasonPlaceholder: "Miért szükséges a módosítás…", history: "Módosítási előzmény", pickRecord: "Válassz jóváhagyott rekordot a listából", noRecords: "Nincs jóváhagyott rekord javításra." },
-    exportView: { title: "Havi elszámolási export", month: "Hónap", group: "Csoport / vezető", allGroups: "Minden csoport", name: "Név", expected: "Havi várható munkaidő", worked: "Ledolgozott órák", difference: "Különbség", allowance: "Napidíj", extraAllowance: "Extra pótlék", approver: "Jóváhagyó neve", lastMod: "Utolsó módosítás", lastModBy: "Utolsó módosítást végző", noneYet: "—", allowanceSetting: "Napidíj összege / nap", allowanceSaved: "Napidíj mentve" },
+    exportView: { title: "Havi elszámolási export", month: "Hónap", group: "Csoport / vezető", allGroups: "Minden csoport", name: "Név", expected: "Havi várható munkaidő", worked: "Ledolgozott órák", difference: "Különbség", allowance: "Napidíj", extraAllowance: "Extra pótlék (átl. %/óra)", approver: "Jóváhagyó neve", lastMod: "Utolsó módosítás", lastModBy: "Utolsó módosítást végző", noneYet: "—", allowanceSetting: "Napidíj összege / nap", allowanceSaved: "Napidíj mentve" },
     audit: { title: "Auditnapló", entry: "Rekord", changedBy: "Módosító", changedAt: "Időpont", reason: "Ok", empty: "Nincs még módosítási bejegyzés." },
     users: { title: "Felhasználók kezelése", name: "Teljes név", code: "Dolgozói azonosító", role: "Szerepkör", supervisor: "Csoportvezető", none: "Nincs", add: "Új felhasználó", namePlaceholder: "pl. Kiss János", codePlaceholder: "pl. E-1009", password: "Kezdő jelszó", passwordPlaceholder: "min. 6 karakter", deleteWarning: "A felhasználó inaktiválásra kerül — a korábbi bejegyzései megmaradnak, de nem tud többé bejelentkezni.", confirmDeleteMsg: "Biztosan eltávolítod ezt a felhasználót?", role_employee: "Dolgozó", role_supervisor: "Csoportvezető", role_admin: "Admin" },
-    misc: { hoursShort: "óra", huf: "Ft", loggedInAs: "Bejelentkezve mint", confirmToast: "Sikeresen mentve" },
+    locations: { title: "Telephelyek kezelése", country: "Ország", city: "Város", plant: "Gyár neve", add: "Új telephely", countryPlaceholder: "pl. Magyarország", cityPlaceholder: "pl. Győr", plantPlaceholder: "pl. Győr Gyár 2", deleteWarning: "A telephely véglegesen törlődik a listából. A korábbi bejegyzésekben a neve megmarad.", confirmDeleteMsg: "Biztosan törlöd ezt a telephelyet?" },
+    misc: { hoursShort: "óra", currency: "€", loggedInAs: "Bejelentkezve mint", confirmToast: "Sikeresen mentve" },
   },
   en: {
     appTitle: "TimeTrack",
     appSub: "Time entry and approval",
     login: { code: "Employee code", password: "Password", lang: "Language", button: "Sign in", error: "Invalid code or password.", loading: "Signing in…" },
-    nav: { dashboard: "Dashboard", newEntry: "New entry", approvals: "Approvals", corrections: "Corrections", export: "Export", auditLog: "Audit log", users: "Users", logout: "Sign out" },
+    nav: { dashboard: "Dashboard", newEntry: "New entry", approvals: "Approvals", corrections: "Corrections", export: "Export", auditLog: "Audit log", users: "Users", locations: "Locations", logout: "Sign out" },
     status: { draft: "Draft", submitted: "Submitted", approved: "Approved", returned: "Returned", corrected: "Corrected" },
     shift: { day: "Day shift", night: "Night shift" },
-    fields: { date: "Date", start: "Start", end: "End", hours: "Worked hours", shift: "Shift code", location: "Work location", comment: "Comment", extraAllowance: "Extra allowance" },
+    fields: { date: "Date", start: "Start", end: "End", hours: "Worked hours", shift: "Shift code", location: "Work location", comment: "Comment", extraAllowance: "Extra allowance (%/hour)" },
     buttons: { saveDraft: "Save as draft", submit: "Submit for approval", approve: "Approve", return: "Return", save: "Save", cancel: "Cancel", bulkApprove: "Approve selected", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Add", delete: "Remove", edit: "Edit", confirmDelete: "Confirm removal" },
     dashboard: { expected: "Expected hours", worked: "Worked hours", difference: "Difference", recent: "Recent entries", newEntryCta: "New daily entry", empty: "No entries yet this month." },
     approval: { title: "Pending entries", filterEmployee: "Employee", filterStatus: "Status", all: "All", empty: "No entries awaiting approval.", reasonPrompt: "Reason for return (required)", reasonPlaceholder: "Describe what needs to be fixed…" },
     correction: { title: "Correct an approved record", original: "Original value", newValue: "New value", reason: "Reason for correction (required)", reasonPlaceholder: "Why is this change needed…", history: "Correction history", pickRecord: "Pick an approved record from the list", noRecords: "No approved records to correct." },
-    exportView: { title: "Monthly payroll export", month: "Month", group: "Group / supervisor", allGroups: "All groups", name: "Name", expected: "Expected monthly hours", worked: "Worked hours", difference: "Difference", allowance: "Allowance", extraAllowance: "Extra allowance", approver: "Approver name", lastMod: "Last modified", lastModBy: "Last modified by", noneYet: "—", allowanceSetting: "Allowance amount / day", allowanceSaved: "Allowance saved" },
+    exportView: { title: "Monthly payroll export", month: "Month", group: "Group / supervisor", allGroups: "All groups", name: "Name", expected: "Expected monthly hours", worked: "Worked hours", difference: "Difference", allowance: "Allowance", extraAllowance: "Extra allowance (avg. %/hour)", approver: "Approver name", lastMod: "Last modified", lastModBy: "Last modified by", noneYet: "—", allowanceSetting: "Allowance amount / day", allowanceSaved: "Allowance saved" },
     audit: { title: "Audit log", entry: "Record", changedBy: "Changed by", changedAt: "Time", reason: "Reason", empty: "No changes logged yet." },
     users: { title: "Manage users", name: "Full name", code: "Employee code", role: "Role", supervisor: "Supervisor", none: "None", add: "Add user", namePlaceholder: "e.g. John Smith", codePlaceholder: "e.g. E-1009", password: "Initial password", passwordPlaceholder: "min. 6 characters", deleteWarning: "The user will be deactivated — their past entries stay, but they can no longer sign in.", confirmDeleteMsg: "Remove this user?", role_employee: "Employee", role_supervisor: "Supervisor", role_admin: "Admin" },
-    misc: { hoursShort: "h", huf: "HUF", loggedInAs: "Signed in as", confirmToast: "Saved successfully" },
+    locations: { title: "Manage locations", country: "Country", city: "City", plant: "Plant name", add: "Add location", countryPlaceholder: "e.g. Hungary", cityPlaceholder: "e.g. Győr", plantPlaceholder: "e.g. Győr Plant 2", deleteWarning: "The location will be permanently removed from the list. Past entries keep its name.", confirmDeleteMsg: "Remove this location?" },
+    misc: { hoursShort: "h", currency: "€", loggedInAs: "Signed in as", confirmToast: "Saved successfully" },
   },
   de: {
     appTitle: "ZeitErfassung",
     appSub: "Arbeitszeiterfassung und Freigabe",
     login: { code: "Mitarbeiternummer", password: "Passwort", lang: "Sprache", button: "Anmelden", error: "Ungültige Nummer oder Passwort.", loading: "Anmeldung…" },
-    nav: { dashboard: "Übersicht", newEntry: "Neuer Eintrag", approvals: "Freigaben", corrections: "Korrekturen", export: "Export", auditLog: "Prüfprotokoll", users: "Benutzer", logout: "Abmelden" },
+    nav: { dashboard: "Übersicht", newEntry: "Neuer Eintrag", approvals: "Freigaben", corrections: "Korrekturen", export: "Export", auditLog: "Prüfprotokoll", users: "Benutzer", locations: "Standorte", logout: "Abmelden" },
     status: { draft: "Entwurf", submitted: "Eingereicht", approved: "Freigegeben", returned: "Zurückgewiesen", corrected: "Korrigiert" },
     shift: { day: "Tagschicht", night: "Nachtschicht" },
-    fields: { date: "Datum", start: "Beginn", end: "Ende", hours: "Geleistete Stunden", shift: "Schichtcode", location: "Arbeitsort", comment: "Bemerkung", extraAllowance: "Zusätzliche Zulage" },
+    fields: { date: "Datum", start: "Beginn", end: "Ende", hours: "Geleistete Stunden", shift: "Schichtcode", location: "Arbeitsort", comment: "Bemerkung", extraAllowance: "Zusätzliche Zulage (%/Std.)" },
     buttons: { saveDraft: "Als Entwurf speichern", submit: "Zur Freigabe einreichen", approve: "Freigeben", return: "Zurückweisen", save: "Speichern", cancel: "Abbrechen", bulkApprove: "Auswahl freigeben", exportCsv: "CSV exportieren", exportXlsx: "XLSX exportieren", add: "Hinzufügen", delete: "Entfernen", edit: "Bearbeiten", confirmDelete: "Entfernen bestätigen" },
     dashboard: { expected: "Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", recent: "Letzte Einträge", newEntryCta: "Neuer Tageseintrag", empty: "Diesen Monat noch keine Einträge." },
     approval: { title: "Ausstehende Einträge", filterEmployee: "Mitarbeiter", filterStatus: "Status", all: "Alle", empty: "Keine Einträge zur Freigabe.", reasonPrompt: "Grund der Zurückweisung (erforderlich)", reasonPlaceholder: "Beschreibe, was korrigiert werden muss…" },
     correction: { title: "Freigegebenen Eintrag korrigieren", original: "Ursprünglicher Wert", newValue: "Neuer Wert", reason: "Korrekturgrund (erforderlich)", reasonPlaceholder: "Warum ist die Änderung nötig…", history: "Korrekturverlauf", pickRecord: "Wähle einen freigegebenen Eintrag aus der Liste", noRecords: "Keine freigegebenen Einträge zu korrigieren." },
-    exportView: { title: "Monatlicher Abrechnungsexport", month: "Monat", group: "Gruppe / Vorgesetzter", allGroups: "Alle Gruppen", name: "Name", expected: "Monatliche Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", allowance: "Zulage", extraAllowance: "Zusätzliche Zulage", approver: "Name des Freigebers", lastMod: "Letzte Änderung", lastModBy: "Geändert von", noneYet: "—", allowanceSetting: "Zulagenbetrag / Tag", allowanceSaved: "Zulage gespeichert" },
+    exportView: { title: "Monatlicher Abrechnungsexport", month: "Monat", group: "Gruppe / Vorgesetzter", allGroups: "Alle Gruppen", name: "Name", expected: "Monatliche Sollstunden", worked: "Geleistete Stunden", difference: "Differenz", allowance: "Zulage", extraAllowance: "Zusätzliche Zulage (Ø %/Std.)", approver: "Name des Freigebers", lastMod: "Letzte Änderung", lastModBy: "Geändert von", noneYet: "—", allowanceSetting: "Zulagenbetrag / Tag", allowanceSaved: "Zulage gespeichert" },
     audit: { title: "Prüfprotokoll", entry: "Eintrag", changedBy: "Geändert von", changedAt: "Zeitpunkt", reason: "Grund", empty: "Noch keine Änderungen protokolliert." },
     users: { title: "Benutzer verwalten", name: "Vollständiger Name", code: "Mitarbeiternummer", role: "Rolle", supervisor: "Vorgesetzter", none: "Keiner", add: "Benutzer hinzufügen", namePlaceholder: "z. B. Max Mustermann", codePlaceholder: "z. B. E-1009", password: "Anfangspasswort", passwordPlaceholder: "min. 6 Zeichen", deleteWarning: "Der Benutzer wird deaktiviert — bisherige Einträge bleiben erhalten, Anmeldung ist nicht mehr möglich.", confirmDeleteMsg: "Diesen Benutzer entfernen?", role_employee: "Mitarbeiter", role_supervisor: "Vorgesetzter", role_admin: "Admin" },
-    misc: { hoursShort: "Std.", huf: "HUF", loggedInAs: "Angemeldet als", confirmToast: "Erfolgreich gespeichert" },
+    locations: { title: "Standorte verwalten", country: "Land", city: "Stadt", plant: "Werksname", add: "Standort hinzufügen", countryPlaceholder: "z. B. Ungarn", cityPlaceholder: "z. B. Győr", plantPlaceholder: "z. B. Győr Werk 2", deleteWarning: "Der Standort wird endgültig aus der Liste entfernt. Vergangene Einträge behalten seinen Namen.", confirmDeleteMsg: "Diesen Standort entfernen?" },
+    misc: { hoursShort: "Std.", currency: "€", loggedInAs: "Angemeldet als", confirmToast: "Erfolgreich gespeichert" },
   },
   ro: {
     appTitle: "Pontaj",
     appSub: "Înregistrare și aprobare a orelor de lucru",
     login: { code: "Cod angajat", password: "Parolă", lang: "Limbă", button: "Autentificare", error: "Cod sau parolă incorectă.", loading: "Se autentifică…" },
-    nav: { dashboard: "Panou", newEntry: "Înregistrare nouă", approvals: "Aprobări", corrections: "Corecții", export: "Export", auditLog: "Jurnal audit", users: "Utilizatori", logout: "Deconectare" },
+    nav: { dashboard: "Panou", newEntry: "Înregistrare nouă", approvals: "Aprobări", corrections: "Corecții", export: "Export", auditLog: "Jurnal audit", users: "Utilizatori", locations: "Locații", logout: "Deconectare" },
     status: { draft: "Ciornă", submitted: "Trimis", approved: "Aprobat", returned: "Returnat", corrected: "Corectat" },
     shift: { day: "Tură de zi", night: "Tură de noapte" },
-    fields: { date: "Data", start: "Început", end: "Sfârșit", hours: "Ore lucrate", shift: "Cod tură", location: "Locul de muncă", comment: "Comentariu", extraAllowance: "Indemnizație suplimentară" },
+    fields: { date: "Data", start: "Început", end: "Sfârșit", hours: "Ore lucrate", shift: "Cod tură", location: "Locul de muncă", comment: "Comentariu", extraAllowance: "Indemnizație suplimentară (%/oră)" },
     buttons: { saveDraft: "Salvează ca ciornă", submit: "Trimite spre aprobare", approve: "Aprobă", return: "Returnează", save: "Salvează", cancel: "Anulează", bulkApprove: "Aprobă selecția", exportCsv: "Export CSV", exportXlsx: "Export XLSX", add: "Adaugă", delete: "Elimină", edit: "Editează", confirmDelete: "Confirmă eliminarea" },
     dashboard: { expected: "Ore așteptate", worked: "Ore lucrate", difference: "Diferență", recent: "Înregistrări recente", newEntryCta: "Înregistrare zilnică nouă", empty: "Nicio înregistrare luna aceasta." },
     approval: { title: "Înregistrări în așteptare", filterEmployee: "Angajat", filterStatus: "Stare", all: "Toate", empty: "Nu există înregistrări de aprobat.", reasonPrompt: "Motivul returnării (obligatoriu)", reasonPlaceholder: "Descrie ce trebuie corectat…" },
     correction: { title: "Corectează o înregistrare aprobată", original: "Valoare originală", newValue: "Valoare nouă", reason: "Motivul corecției (obligatoriu)", reasonPlaceholder: "De ce este necesară modificarea…", history: "Istoric corecții", pickRecord: "Alege o înregistrare aprobată din listă", noRecords: "Nu există înregistrări aprobate de corectat." },
-    exportView: { title: "Export lunar pentru salarizare", month: "Lună", group: "Grup / șef", allGroups: "Toate grupurile", name: "Nume", expected: "Ore lunare așteptate", worked: "Ore lucrate", difference: "Diferență", allowance: "Diurnă", extraAllowance: "Indemnizație suplimentară", approver: "Numele aprobatorului", lastMod: "Ultima modificare", lastModBy: "Modificat de", noneYet: "—", allowanceSetting: "Suma diurnei / zi", allowanceSaved: "Diurnă salvată" },
+    exportView: { title: "Export lunar pentru salarizare", month: "Lună", group: "Grup / șef", allGroups: "Toate grupurile", name: "Nume", expected: "Ore lunare așteptate", worked: "Ore lucrate", difference: "Diferență", allowance: "Diurnă", extraAllowance: "Indemnizație suplimentară (medie %/oră)", approver: "Numele aprobatorului", lastMod: "Ultima modificare", lastModBy: "Modificat de", noneYet: "—", allowanceSetting: "Suma diurnei / zi", allowanceSaved: "Diurnă salvată" },
     audit: { title: "Jurnal audit", entry: "Înregistrare", changedBy: "Modificat de", changedAt: "Data/ora", reason: "Motiv", empty: "Nicio modificare înregistrată încă." },
     users: { title: "Gestionare utilizatori", name: "Nume complet", code: "Cod angajat", role: "Rol", supervisor: "Șef de echipă", none: "Niciunul", add: "Adaugă utilizator", namePlaceholder: "ex. Ion Popescu", codePlaceholder: "ex. E-1009", password: "Parolă inițială", passwordPlaceholder: "min. 6 caractere", deleteWarning: "Utilizatorul va fi dezactivat — înregistrările anterioare rămân, dar nu se mai poate autentifica.", confirmDeleteMsg: "Elimini acest utilizator?", role_employee: "Angajat", role_supervisor: "Șef de echipă", role_admin: "Admin" },
-    misc: { hoursShort: "h", huf: "HUF", loggedInAs: "Autentificat ca", confirmToast: "Salvat cu succes" },
+    locations: { title: "Gestionare locații", country: "Țară", city: "Oraș", plant: "Numele uzinei", add: "Adaugă locație", countryPlaceholder: "ex. Ungaria", cityPlaceholder: "ex. Győr", plantPlaceholder: "ex. Uzina Győr 2", deleteWarning: "Locația va fi eliminată definitiv din listă. Înregistrările anterioare păstrează numele ei.", confirmDeleteMsg: "Elimini această locație?" },
+    misc: { hoursShort: "h", currency: "€", loggedInAs: "Autentificat ca", confirmToast: "Salvat cu succes" },
   },
   tr: {
     appTitle: "Puantaj",
     appSub: "Çalışma saati kaydı ve onayı",
     login: { code: "Personel kodu", password: "Şifre", lang: "Dil", button: "Giriş yap", error: "Kod veya şifre hatalı.", loading: "Giriş yapılıyor…" },
-    nav: { dashboard: "Panel", newEntry: "Yeni kayıt", approvals: "Onaylar", corrections: "Düzeltmeler", export: "Dışa aktar", auditLog: "Denetim günlüğü", users: "Kullanıcılar", logout: "Çıkış yap" },
+    nav: { dashboard: "Panel", newEntry: "Yeni kayıt", approvals: "Onaylar", corrections: "Düzeltmeler", export: "Dışa aktar", auditLog: "Denetim günlüğü", users: "Kullanıcılar", locations: "Lokasyonlar", logout: "Çıkış yap" },
     status: { draft: "Taslak", submitted: "Gönderildi", approved: "Onaylandı", returned: "İade edildi", corrected: "Düzeltildi" },
     shift: { day: "Gündüz vardiyası", night: "Gece vardiyası" },
-    fields: { date: "Tarih", start: "Başlangıç", end: "Bitiş", hours: "Çalışılan saat", shift: "Vardiya kodu", location: "Çalışma yeri", comment: "Not", extraAllowance: "Ek ödenek" },
+    fields: { date: "Tarih", start: "Başlangıç", end: "Bitiş", hours: "Çalışılan saat", shift: "Vardiya kodu", location: "Çalışma yeri", comment: "Not", extraAllowance: "Ek ödenek (%/saat)" },
     buttons: { saveDraft: "Taslak olarak kaydet", submit: "Onaya gönder", approve: "Onayla", return: "İade et", save: "Kaydet", cancel: "Vazgeç", bulkApprove: "Seçilenleri onayla", exportCsv: "CSV dışa aktar", exportXlsx: "XLSX dışa aktar", add: "Ekle", delete: "Kaldır", edit: "Düzenle", confirmDelete: "Kaldırmayı onayla" },
     dashboard: { expected: "Beklenen saat", worked: "Çalışılan saat", difference: "Fark", recent: "Son kayıtlar", newEntryCta: "Yeni günlük kayıt", empty: "Bu ay henüz kayıt yok." },
     approval: { title: "Bekleyen kayıtlar", filterEmployee: "Çalışan", filterStatus: "Durum", all: "Tümü", empty: "Onay bekleyen kayıt yok.", reasonPrompt: "İade nedeni (zorunlu)", reasonPlaceholder: "Nelerin düzeltilmesi gerektiğini yaz…" },
     correction: { title: "Onaylı kaydı düzelt", original: "Orijinal değer", newValue: "Yeni değer", reason: "Düzeltme nedeni (zorunlu)", reasonPlaceholder: "Değişiklik neden gerekli…", history: "Düzeltme geçmişi", pickRecord: "Listeden onaylı bir kayıt seç", noRecords: "Düzeltilecek onaylı kayıt yok." },
-    exportView: { title: "Aylık bordro dışa aktarımı", month: "Ay", group: "Grup / yönetici", allGroups: "Tüm gruplar", name: "İsim", expected: "Aylık beklenen saat", worked: "Çalışılan saat", difference: "Fark", allowance: "Yevmiye", extraAllowance: "Ek ödenek", approver: "Onaylayan adı", lastMod: "Son değişiklik", lastModBy: "Değiştiren", noneYet: "—", allowanceSetting: "Yevmiye tutarı / gün", allowanceSaved: "Yevmiye kaydedildi" },
+    exportView: { title: "Aylık bordro dışa aktarımı", month: "Ay", group: "Grup / yönetici", allGroups: "Tüm gruplar", name: "İsim", expected: "Aylık beklenen saat", worked: "Çalışılan saat", difference: "Fark", allowance: "Yevmiye", extraAllowance: "Ek ödenek (ort. %/saat)", approver: "Onaylayan adı", lastMod: "Son değişiklik", lastModBy: "Değiştiren", noneYet: "—", allowanceSetting: "Yevmiye tutarı / gün", allowanceSaved: "Yevmiye kaydedildi" },
     audit: { title: "Denetim günlüğü", entry: "Kayıt", changedBy: "Değiştiren", changedAt: "Zaman", reason: "Neden", empty: "Henüz kayıtlı değişiklik yok." },
     users: { title: "Kullanıcı yönetimi", name: "Ad Soyad", code: "Personel kodu", role: "Rol", supervisor: "Ekip lideri", none: "Yok", add: "Kullanıcı ekle", namePlaceholder: "örn. Ahmet Yılmaz", codePlaceholder: "örn. E-1009", password: "Başlangıç şifresi", passwordPlaceholder: "en az 6 karakter", deleteWarning: "Kullanıcı devre dışı bırakılır — geçmiş kayıtları kalır, ancak artık giriş yapamaz.", confirmDeleteMsg: "Bu kullanıcıyı kaldırmak istiyor musun?", role_employee: "Çalışan", role_supervisor: "Ekip lideri", role_admin: "Yönetici" },
-    misc: { hoursShort: "sa", huf: "HUF", loggedInAs: "Giriş yapan", confirmToast: "Başarıyla kaydedildi" },
+    locations: { title: "Lokasyonları yönet", country: "Ülke", city: "Şehir", plant: "Tesis adı", add: "Lokasyon ekle", countryPlaceholder: "örn. Macaristan", cityPlaceholder: "örn. Győr", plantPlaceholder: "örn. Győr Tesis 2", deleteWarning: "Lokasyon listeden kalıcı olarak kaldırılır. Geçmiş kayıtlar adını korur.", confirmDeleteMsg: "Bu lokasyonu kaldırmak istiyor musun?" },
+    misc: { hoursShort: "sa", currency: "€", loggedInAs: "Giriş yapan", confirmToast: "Başarıyla kaydedildi" },
   },
 };
 
@@ -189,7 +183,7 @@ function LoginScreen({ lang, setLang, onLogin, t, error, loading }) {
     <div className="login-wrap">
       <form className="login-card" onSubmit={submit}>
         <div className="login-brand">
-          <Clock size={26} strokeWidth={1.5} />
+          <img src={logo} alt="Inducat" className="login-logo" />
           <div>
             <div className="login-title">{t("appTitle")}</div>
             <div className="login-sub">{t("appSub")}</div>
@@ -225,7 +219,7 @@ function LoginScreen({ lang, setLang, onLogin, t, error, loading }) {
 /* Entry form                                                             */
 /* ---------------------------------------------------------------------- */
 
-function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
+function EntryForm({ t, locations, onCancel, onSave, onSubmit, busy }) {
   const [locIdx, setLocIdx] = useState(0);
   const [form, setForm] = useState({
     date: new Date().toISOString().slice(0, 10),
@@ -236,8 +230,8 @@ function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
     extraAllowance: "",
   });
   const hours = computeHours(form.start, form.end);
-  const loc = LOCATIONS[locIdx];
-  const valid = form.date && form.start && form.end;
+  const loc = locations[locIdx] || { country: "", city: "", plant: "" };
+  const valid = form.date && form.start && form.end && locations.length > 0;
 
   function set(k, v) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -272,8 +266,8 @@ function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
         <div className="field field-wide">
           <label className="field-label">{t("fields.location")}</label>
           <select className="input" value={locIdx} onChange={(e) => setLocIdx(Number(e.target.value))}>
-            {LOCATIONS.map((l, i) => (
-              <option key={i} value={i}>
+            {locations.map((l, i) => (
+              <option key={l.id} value={i}>
                 {l.country} · {l.city} · {l.plant}
               </option>
             ))}
@@ -281,7 +275,10 @@ function EntryForm({ t, onCancel, onSave, onSubmit, busy }) {
         </div>
         <div className="field">
           <label className="field-label">{t("fields.extraAllowance")}</label>
-          <input type="number" min="0" step="100" className="input" value={form.extraAllowance} onChange={(e) => set("extraAllowance", e.target.value)} />
+          <div className="allowance-edit">
+            <input type="number" min="0" step="1" className="input" value={form.extraAllowance} onChange={(e) => set("extraAllowance", e.target.value)} />
+            <span className="unit-suffix">%</span>
+          </div>
         </div>
         <div className="field field-wide">
           <label className="field-label">{t("fields.comment")}</label>
@@ -359,7 +356,7 @@ function Dashboard({ t, lang, user, entries, settings, onOpenNewEntry }) {
               <div className="ledger-hours">{e.hours} {t("misc.hoursShort")}</div>
               <div className="ledger-loc">{e.plant}</div>
               {e.extraAllowance > 0 && (
-                <div className="ledger-extra">+{e.extraAllowance.toLocaleString(LOCALE_MAP[lang])} {t("misc.huf")}</div>
+                <div className="ledger-extra">+{e.extraAllowance}% / {t("misc.hoursShort")}</div>
               )}
               <Stamp status={e.status} t={t} />
             </div>
@@ -598,13 +595,15 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
     const diff = Math.round((settings.expectedMonthlyHours - worked) * 100) / 100;
     const days = new Set(empEntries.map((e) => e.date)).size;
     const allowance = days * settings.allowancePerDay;
-    const extraAllowance = Math.round(empEntries.reduce((s, e) => s + (e.extraAllowance || 0), 0) * 100) / 100;
+    const extraAllowancePercent = empEntries.length
+      ? Math.round((empEntries.reduce((s, e) => s + (e.extraAllowance || 0), 0) / empEntries.length) * 100) / 100
+      : 0;
     const approverIds = [...new Set(empEntries.map((e) => e.approvedBy).filter(Boolean))];
     const approverName = approverIds.length ? employees.find((x) => x.id === approverIds[0])?.name : "";
     const mods = empEntries.filter((e) => e.lastModifiedAt).sort((a, b) => (a.lastModifiedAt < b.lastModifiedAt ? 1 : -1));
     const lastMod = mods[0];
     return {
-      name: emp.name, expected: settings.expectedMonthlyHours, worked, diff, allowance, extraAllowance,
+      name: emp.name, expected: settings.expectedMonthlyHours, worked, diff, allowance, extraAllowancePercent,
       approverName: approverName || t("exportView.noneYet"),
       lastModDate: lastMod ? lastMod.lastModifiedAt.slice(0, 10) : t("exportView.noneYet"),
       lastModBy: lastMod ? employees.find((x) => x.id === lastMod.lastModifiedBy)?.name : t("exportView.noneYet"),
@@ -639,7 +638,7 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
           <label className="field-label">{t("exportView.allowanceSetting")}</label>
           <div className="allowance-edit">
             <input type="number" min="0" step="100" className="input input-sm" value={allowanceDraft} onChange={(e) => setAllowanceDraft(e.target.value)} />
-            <span className="unit-suffix">{t("misc.huf")}</span>
+            <span className="unit-suffix">{t("misc.currency")}</span>
             <button className="btn btn-ghost btn-sm" onClick={saveAllowance} disabled={Number(allowanceDraft) === settings.allowancePerDay}>
               {t("buttons.save")}
             </button>
@@ -676,8 +675,8 @@ function ExportView({ t, lang, entries, employees, settings, onSaveSettings, onE
                 <td>{r.expected}</td>
                 <td>{r.worked}</td>
                 <td className={r.diff > 0 ? "warn" : "good"}>{r.diff}</td>
-                <td>{r.allowance.toLocaleString(LOCALE_MAP[lang])} {t("misc.huf")}</td>
-                <td>{r.extraAllowance.toLocaleString(LOCALE_MAP[lang])} {t("misc.huf")}</td>
+                <td>{r.allowance.toLocaleString(LOCALE_MAP[lang])} {t("misc.currency")}</td>
+                <td>{r.extraAllowancePercent}%</td>
                 <td>{r.approverName}</td>
                 <td>{r.lastModDate}</td>
                 <td>{r.lastModBy}</td>
@@ -942,10 +941,168 @@ function UsersView({ t, employees, currentUser, onAdd, onDelete, onUpdate }) {
 }
 
 /* ---------------------------------------------------------------------- */
+/* Locations view                                                         */
+/* ---------------------------------------------------------------------- */
+
+function LocationsView({ t, locations, onAdd, onUpdate, onDelete }) {
+  const [form, setForm] = useState({ country: "", city: "", plant: "" });
+  const [formError, setFormError] = useState("");
+  const [confirmingId, setConfirmingId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [editError, setEditError] = useState("");
+
+  function set(k, v) {
+    setForm((f) => ({ ...f, [k]: v }));
+  }
+
+  async function submit() {
+    setFormError("");
+    if (!form.country.trim() || !form.city.trim() || !form.plant.trim()) return;
+    try {
+      await onAdd({ country: form.country.trim(), city: form.city.trim(), plant: form.plant.trim() });
+      setForm({ country: "", city: "", plant: "" });
+    } catch (err) {
+      setFormError(err.message);
+    }
+  }
+
+  function startEdit(loc) {
+    setEditingId(loc.id);
+    setEditForm({ country: loc.country, city: loc.city, plant: loc.plant });
+    setEditError("");
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditForm(null);
+    setEditError("");
+  }
+
+  function setEdit(k, v) {
+    setEditForm((f) => ({ ...f, [k]: v }));
+  }
+
+  async function saveEdit(id) {
+    if (!editForm.country.trim() || !editForm.city.trim() || !editForm.plant.trim()) return;
+    setEditError("");
+    try {
+      await onUpdate(id, { country: editForm.country.trim(), city: editForm.city.trim(), plant: editForm.plant.trim() });
+      setEditingId(null);
+      setEditForm(null);
+    } catch (err) {
+      setEditError(err.message);
+    }
+  }
+
+  return (
+    <div>
+      <h2 className="section-title">{t("locations.title")}</h2>
+
+      <div className="panel" style={{ marginBottom: "1.2rem" }}>
+        <div className="form-grid">
+          <div className="field">
+            <label className="field-label">{t("locations.country")}</label>
+            <input className="input" placeholder={t("locations.countryPlaceholder")} value={form.country} onChange={(e) => set("country", e.target.value)} />
+          </div>
+          <div className="field">
+            <label className="field-label">{t("locations.city")}</label>
+            <input className="input" placeholder={t("locations.cityPlaceholder")} value={form.city} onChange={(e) => set("city", e.target.value)} />
+          </div>
+          <div className="field">
+            <label className="field-label">{t("locations.plant")}</label>
+            <input className="input" placeholder={t("locations.plantPlaceholder")} value={form.plant} onChange={(e) => set("plant", e.target.value)} />
+          </div>
+        </div>
+        {formError && <div className="login-error" style={{ marginTop: "0.6rem" }}>{formError}</div>}
+        <div className="btn-row" style={{ justifyContent: "flex-start" }}>
+          <button className="btn btn-primary btn-sm" disabled={!form.country.trim() || !form.city.trim() || !form.plant.trim()} onClick={submit}>
+            <Plus size={14} /> {t("locations.add")}
+          </button>
+        </div>
+      </div>
+
+      <div className="table-wrap">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>{t("locations.country")}</th>
+              <th>{t("locations.city")}</th>
+              <th>{t("locations.plant")}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {locations.map((l) => {
+              const isEditing = editingId === l.id;
+
+              if (isEditing) {
+                return (
+                  <tr key={l.id}>
+                    <td><input className="input input-sm" value={editForm.country} onChange={(ev) => setEdit("country", ev.target.value)} /></td>
+                    <td><input className="input input-sm" value={editForm.city} onChange={(ev) => setEdit("city", ev.target.value)} /></td>
+                    <td><input className="input input-sm" value={editForm.plant} onChange={(ev) => setEdit("plant", ev.target.value)} /></td>
+                    <td>
+                      <div className="row-actions">
+                        <button className="icon-btn approve" title={t("buttons.save")} disabled={!editForm.country.trim() || !editForm.city.trim() || !editForm.plant.trim()} onClick={() => saveEdit(l.id)}>
+                          <Check size={14} />
+                        </button>
+                        <button className="icon-btn reject" title={t("buttons.cancel")} onClick={cancelEdit}>
+                          <X size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              }
+
+              return (
+                <tr key={l.id}>
+                  <td>{l.country}</td>
+                  <td>{l.city}</td>
+                  <td>{l.plant}</td>
+                  <td>
+                    <div className="row-actions">
+                      <button className="icon-btn" title={t("buttons.edit")} onClick={() => startEdit(l)}>
+                        <Pencil size={14} />
+                      </button>
+                      <button className="icon-btn reject" title={t("buttons.delete")} onClick={() => setConfirmingId(l.id)}>
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {editError && <div className="login-error" style={{ marginTop: "0.6rem" }}>{editError}</div>}
+
+      {confirmingId && (
+        <div className="modal-backdrop" onClick={() => setConfirmingId(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="section-title">{t("buttons.confirmDelete")}</h3>
+            <p style={{ fontSize: "0.85rem" }}>{t("locations.confirmDeleteMsg")}</p>
+            <p style={{ fontSize: "0.78rem", color: "var(--slate)" }}>{t("locations.deleteWarning")}</p>
+            <div className="btn-row">
+              <button className="btn btn-ghost" onClick={() => setConfirmingId(null)}>{t("buttons.cancel")}</button>
+              <button className="btn btn-danger" onClick={() => { onDelete(confirmingId); setConfirmingId(null); }}>
+                {t("buttons.delete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
 /* Root app                                                                */
 /* ---------------------------------------------------------------------- */
 
-const NAV_ICONS = { dashboard: ListChecks, newEntry: Plus, approvals: Check, corrections: FileEdit, export: FileSpreadsheet, auditLog: ClipboardList, users: Users };
+const NAV_ICONS = { dashboard: ListChecks, newEntry: Plus, approvals: Check, corrections: FileEdit, export: FileSpreadsheet, auditLog: ClipboardList, users: Users, locations: MapPin };
 
 export default function App() {
   const [lang, setLang] = useState("hu");
@@ -953,6 +1110,7 @@ export default function App() {
   const [tab, setTab] = useState("dashboard");
   const [entries, setEntries] = useState([]);
   const [employees, setEmployees] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [auditLog, setAuditLog] = useState([]);
   const [settings, setSettings] = useState({ allowancePerDay: 4500, expectedMonthlyHours: 168 });
   const [loginError, setLoginError] = useState("");
@@ -968,10 +1126,11 @@ export default function App() {
   }
 
   const loadAll = useCallback(async (currentUser) => {
-    const [emps, ents, sett] = await Promise.all([api.listEmployees(), api.listEntries(), api.getSettings()]);
+    const [emps, ents, sett, locs] = await Promise.all([api.listEmployees(), api.listEntries(), api.getSettings(), api.listLocations()]);
     setEmployees(emps);
     setEntries(ents);
     setSettings(sett);
+    setLocations(locs);
     if (currentUser.role === "admin" || currentUser.role === "supervisor") {
       setAuditLog(await api.auditLog());
     }
@@ -1014,6 +1173,7 @@ export default function App() {
     setUser(null);
     setEntries([]);
     setEmployees([]);
+    setLocations([]);
     setAuditLog([]);
   }
 
@@ -1101,6 +1261,25 @@ export default function App() {
     }
   }
 
+  async function addLocation(payload) {
+    await api.addLocation(payload);
+    setLocations(await api.listLocations());
+  }
+
+  async function updateLocation(id, payload) {
+    await api.updateLocation(id, payload);
+    setLocations(await api.listLocations());
+  }
+
+  async function deleteLocation(id) {
+    try {
+      await api.deleteLocation(id);
+      setLocations(await api.listLocations());
+    } catch (err) {
+      flashToast(err.message);
+    }
+  }
+
   async function saveSettings(next) {
     try {
       const saved = await api.updateSettings(next);
@@ -1141,7 +1320,7 @@ export default function App() {
   const isAdmin = user.role === "admin";
   const navItems = ["dashboard", "newEntry"];
   if (isSupervisorish) navItems.push("approvals", "corrections");
-  if (isAdmin) navItems.push("export", "auditLog", "users");
+  if (isAdmin) navItems.push("export", "auditLog", "users", "locations");
 
   return (
     <>
@@ -1149,7 +1328,9 @@ export default function App() {
       <div className="app">
         <aside className="sidebar">
           <div className="brand">
-            <Clock size={20} strokeWidth={1.5} />
+            <span className="brand-logo-wrap">
+              <img src={logo} alt="Inducat" className="brand-logo" />
+            </span>
             <span>{t("appTitle")}</span>
           </div>
 
@@ -1189,12 +1370,13 @@ export default function App() {
 
         <main className="main">
           {tab === "dashboard" && <Dashboard t={t} lang={lang} user={user} entries={entries} settings={settings} onOpenNewEntry={() => setTab("newEntry")} />}
-          {tab === "newEntry" && <EntryForm t={t} onCancel={() => setTab("dashboard")} onSave={saveDraft} onSubmit={submitEntry} busy={busy} />}
+          {tab === "newEntry" && <EntryForm t={t} locations={locations} onCancel={() => setTab("dashboard")} onSave={saveDraft} onSubmit={submitEntry} busy={busy} />}
           {tab === "approvals" && isSupervisorish && <ApprovalView t={t} user={user} entries={entries} employees={employees} onApprove={approveEntry} onReturn={returnEntry} />}
           {tab === "corrections" && isSupervisorish && <CorrectionView t={t} user={user} entries={entries} employees={employees} auditLog={auditLog} onCorrect={correctEntry} />}
           {tab === "export" && isAdmin && <ExportView t={t} lang={lang} entries={entries} employees={employees} settings={settings} onSaveSettings={saveSettings} onExport={doExport} />}
           {tab === "auditLog" && isAdmin && <AuditLogView t={t} lang={lang} auditLog={auditLog} employees={employees} />}
           {tab === "users" && isAdmin && <UsersView t={t} employees={employees} currentUser={user} onAdd={addEmployee} onDelete={deleteEmployee} onUpdate={updateEmployee} />}
+          {tab === "locations" && isAdmin && <LocationsView t={t} locations={locations} onAdd={addLocation} onUpdate={updateLocation} onDelete={deleteLocation} />}
         </main>
       </div>
 

@@ -70,6 +70,11 @@ export const api = {
 
   auditLog: () => request("/audit-log"),
 
+  listLocations: () => request("/locations"),
+  addLocation: (payload) => request("/locations", { method: "POST", body: JSON.stringify(payload) }),
+  updateLocation: (id, payload) => request(`/locations/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteLocation: (id) => request(`/locations/${id}`, { method: "DELETE" }),
+
   getSettings: () => request("/settings"),
   updateSettings: (payload) => request("/settings", { method: "PUT", body: JSON.stringify(payload) }),
 

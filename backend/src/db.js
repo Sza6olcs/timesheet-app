@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
+const { v4: uuid } = require("uuid");
 require("dotenv").config();
 
 const dbFile = process.env.DB_FILE || "./data/timesheet.db";
@@ -61,6 +62,14 @@ CREATE TABLE IF NOT EXISTS app_settings (
   value TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS locations (
+  id TEXT PRIMARY KEY,
+  country TEXT NOT NULL,
+  city TEXT NOT NULL,
+  plant_name TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_entries_employee ON timesheet_entries(employee_id);
 CREATE INDEX IF NOT EXISTS idx_entries_status ON timesheet_entries(status);
 CREATE INDEX IF NOT EXISTS idx_audit_entry ON entry_audit_log(entry_id);
@@ -79,5 +88,25 @@ const upsert = db.prepare(
   "INSERT INTO app_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO NOTHING"
 );
 for (const [k, v] of Object.entries(defaults)) upsert.run(k, v);
+
+// Kezdeti telephely-katalógus, ha még egyáltalán nincs felvéve telephely.
+const locationCount = db.prepare("SELECT COUNT(*) AS n FROM locations").get().n;
+if (locationCount === 0) {
+  const insertLocation = db.prepare(`
+    INSERT INTO locations (id, country, city, plant_name, created_at) VALUES (@id, @country, @city, @plant_name, @created_at)
+  `);
+  const now = new Date().toISOString();
+  const initialLocations = [
+    { country: "Magyarország", city: "Győr", plant_name: "Győr Gyár 1" },
+    { country: "Magyarország", city: "Kecskemét", plant_name: "Kecskemét Gyár" },
+    { country: "Németország", city: "Stuttgart", plant_name: "Stuttgart Werk" },
+    { country: "Románia", city: "Arad", plant_name: "Arad Üzem" },
+    { country: "Törökország", city: "Bursa", plant_name: "Bursa Tesis" },
+  ];
+  const insertAll = db.transaction((rows) => {
+    for (const row of rows) insertLocation.run({ id: uuid(), created_at: now, ...row });
+  });
+  insertAll(initialLocations);
+}
 
 module.exports = db;

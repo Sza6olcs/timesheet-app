@@ -51,6 +51,7 @@ h1, h2, h3, .section-title, .login-title, .brand span {
   box-shadow: 0 1px 0 var(--line);
 }
 .login-brand { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.4rem; }
+.login-logo { height: 42px; width: auto; max-width: 100%; }
 .login-title { font-family: 'Oswald', sans-serif; font-size: 1.3rem; }
 .login-sub { font-size: 0.78rem; color: var(--slate); }
 .login-error { margin-top: 0.9rem; font-size: 0.78rem; color: var(--red); background: #fff; border: 1px solid var(--red); padding: 0.5rem 0.6rem; }
@@ -75,7 +76,9 @@ h1, h2, h3, .section-title, .login-title, .brand span {
 /* ---------- App shell ---------- */
 .app { display: flex; }
 .sidebar { width: 230px; background: var(--ink); color: #E9EBEC; display: flex; flex-direction: column; padding: 1.1rem 0.9rem; position: sticky; top: 0; height: 100vh; }
-.brand { display: flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; padding: 0 0.3rem 1.1rem; border-bottom: 1px solid #33404F; margin-bottom: 0.9rem; }
+.brand { display: flex; align-items: center; gap: 0.6rem; font-size: 1.05rem; padding: 0 0.3rem 1.1rem; border-bottom: 1px solid #33404F; margin-bottom: 0.9rem; }
+.brand-logo-wrap { background: #fff; padding: 3px 7px; border-radius: 4px; display: inline-flex; align-items: center; flex-shrink: 0; }
+.brand-logo { height: 20px; width: auto; display: block; }
 .nav { display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
 .nav-item { display: flex; align-items: center; gap: 0.6rem; background: transparent; border: none; color: #C6CCD3; padding: 0.55rem 0.6rem; font-size: 0.83rem; text-align: left; cursor: pointer; font-family: 'IBM Plex Sans'; }
 .nav-item:hover { background: #626262; }
@@ -158,7 +161,7 @@ textarea.input { resize: vertical; }
 .inline-saved { font-size: 0.72rem; color: var(--green); font-weight: 600; }
 
 /* ---------- Modal ---------- */
-.modal-backdrop { position: fixed; inset: 0; background: rgba(79,79,79,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; }
+.modal-backdrop { position: fixed; inset: 0; background: rgba(79,79,79,0.5); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 1rem; }
 .modal { background: #fff; padding: 1.3rem; width: 100%; max-width: 420px; border-top: 4px solid var(--red); }
 
 /* ---------- Correction compare ---------- */
@@ -199,4 +202,9 @@ textarea.input { resize: vertical; }
   .compare-grid { grid-template-columns: 1fr; }
   .ledger-row { flex-wrap: wrap; }
   .stamp { margin-left: 0; }
+  .icon-btn { width: 32px; height: 32px; }
+  .login-wrap { padding: 1rem; }
+  .login-card { padding: 1.25rem; }
+  .allowance-edit { flex-wrap: wrap; }
+  .table-wrap { -webkit-overflow-scrolling: touch; }
 }
