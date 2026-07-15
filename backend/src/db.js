@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS employees (
   name TEXT NOT NULL,
   code TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('employee','supervisor','admin')),
+  role TEXT NOT NULL CHECK (role IN ('employee','supervisor','admin','superadmin')),
   supervisor_id TEXT REFERENCES employees(id) ON DELETE SET NULL,
   default_language TEXT NOT NULL DEFAULT 'hu',
   active INTEGER NOT NULL DEFAULT 1,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS timesheet_entries (
 
 CREATE TABLE IF NOT EXISTS entry_audit_log (
   id TEXT PRIMARY KEY,
-  entry_id TEXT NOT NULL REFERENCES timesheet_entries(id) ON DELETE CASCADE,
+  entry_id TEXT NOT NULL,
   changed_by TEXT NOT NULL REFERENCES employees(id),
   changed_at TEXT NOT NULL,
   reason TEXT NOT NULL,
@@ -83,6 +83,59 @@ CREATE INDEX IF NOT EXISTS idx_entries_employee ON timesheet_entries(employee_id
 CREATE INDEX IF NOT EXISTS idx_entries_status ON timesheet_entries(status);
 CREATE INDEX IF NOT EXISTS idx_audit_entry ON entry_audit_log(entry_id);
 `);
+
+// Migráció: 'superadmin' szerepkör hozzáadása az employees tábla CHECK
+// constraint-jéhez. SQLite-ban ez csak táblaújraépítéssel oldható meg.
+const employeesTableSql = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='employees'").get()?.sql || "";
+if (employeesTableSql && !employeesTableSql.includes("superadmin")) {
+  db.pragma("foreign_keys = OFF");
+  db.exec(`
+    CREATE TABLE employees_new (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      code TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      role TEXT NOT NULL CHECK (role IN ('employee','supervisor','admin','superadmin')),
+      supervisor_id TEXT REFERENCES employees(id) ON DELETE SET NULL,
+      default_language TEXT NOT NULL DEFAULT 'hu',
+      active INTEGER NOT NULL DEFAULT 1,
+      created_at TEXT NOT NULL
+    );
+    INSERT INTO employees_new (id, name, code, password_hash, role, supervisor_id, default_language, active, created_at)
+      SELECT id, name, code, password_hash, role, supervisor_id, default_language, active, created_at FROM employees;
+    DROP TABLE employees;
+    ALTER TABLE employees_new RENAME TO employees;
+  `);
+  // Egyszeri előléptetés: a migráció pillanatában létező admin fiókok legyenek
+  // super admin, hogy azonnal élhessenek az új törlési joggal.
+  db.prepare("UPDATE employees SET role = 'superadmin' WHERE role = 'admin'").run();
+  db.pragma("foreign_keys = ON");
+}
+
+// Migráció: az entry_audit_log.entry_id ne hivatkozzon ON DELETE CASCADE-del a
+// timesheet_entries táblára — különben egy bejegyzés törlésekor a hozzá tartozó
+// (és az azt rögzítő) auditnapló-bejegyzések is automatikusan eltűnnének.
+const auditTableSql = db.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='entry_audit_log'").get()?.sql || "";
+if (auditTableSql && auditTableSql.includes("REFERENCES timesheet_entries")) {
+  db.pragma("foreign_keys = OFF");
+  db.exec(`
+    CREATE TABLE entry_audit_log_new (
+      id TEXT PRIMARY KEY,
+      entry_id TEXT NOT NULL,
+      changed_by TEXT NOT NULL REFERENCES employees(id),
+      changed_at TEXT NOT NULL,
+      reason TEXT NOT NULL,
+      old_value_json TEXT NOT NULL,
+      new_value_json TEXT NOT NULL
+    );
+    INSERT INTO entry_audit_log_new (id, entry_id, changed_by, changed_at, reason, old_value_json, new_value_json)
+      SELECT id, entry_id, changed_by, changed_at, reason, old_value_json, new_value_json FROM entry_audit_log;
+    DROP TABLE entry_audit_log;
+    ALTER TABLE entry_audit_log_new RENAME TO entry_audit_log;
+    CREATE INDEX IF NOT EXISTS idx_audit_entry ON entry_audit_log(entry_id);
+  `);
+  db.pragma("foreign_keys = ON");
+}
 
 // Migráció: új oszlopok pótlása már létező adatbázisokon
 // (a fenti CREATE TABLE IF NOT EXISTS nem érinti a már létrehozott táblát).

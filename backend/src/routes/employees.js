@@ -30,8 +30,11 @@ router.post("/", requireAuth, requireRole("admin"), (req, res) => {
   if (!name || !code || !role || !password) {
     return res.status(400).json({ error: "Név, kód, szerepkör és jelszó megadása kötelező." });
   }
-  if (!["employee", "supervisor", "admin"].includes(role)) {
+  if (!["employee", "supervisor", "admin", "superadmin"].includes(role)) {
     return res.status(400).json({ error: "Érvénytelen szerepkör." });
+  }
+  if (role === "superadmin" && req.user.role !== "superadmin") {
+    return res.status(403).json({ error: "Csak super admin hozhat létre másik super admin felhasználót." });
   }
   if (password.length < 6) {
     return res.status(400).json({ error: "A jelszónak legalább 6 karakter hosszúnak kell lennie." });
@@ -64,8 +67,11 @@ router.patch("/:id", requireAuth, requireRole("admin"), (req, res) => {
   if (!emp) return res.status(404).json({ error: "Felhasználó nem található." });
 
   const { name, code, role, supervisorId, defaultLanguage } = req.body || {};
-  if (role && !["employee", "supervisor", "admin"].includes(role)) {
+  if (role && !["employee", "supervisor", "admin", "superadmin"].includes(role)) {
     return res.status(400).json({ error: "Érvénytelen szerepkör." });
+  }
+  if (role === "superadmin" && emp.role !== "superadmin" && req.user.role !== "superadmin") {
+    return res.status(403).json({ error: "Csak super admin léptethet elő másik felhasználót super adminná." });
   }
   if (code && code !== emp.code) {
     const dup = db.prepare("SELECT id FROM employees WHERE code = ? AND id != ?").get(code, id);
@@ -95,8 +101,11 @@ router.delete("/:id", requireAuth, requireRole("admin"), (req, res) => {
   if (id === req.user.id) {
     return res.status(400).json({ error: "Saját magadat nem távolíthatod el." });
   }
-  const emp = db.prepare("SELECT id FROM employees WHERE id = ?").get(id);
+  const emp = db.prepare("SELECT id, role FROM employees WHERE id = ?").get(id);
   if (!emp) return res.status(404).json({ error: "Felhasználó nem található." });
+  if (emp.role === "superadmin" && req.user.role !== "superadmin") {
+    return res.status(403).json({ error: "Csak super admin távolíthat el másik super admint." });
+  }
 
   db.prepare("UPDATE employees SET active = 0 WHERE id = ?").run(id);
   // A rá hivatkozó dolgozók csoportvezetőjét is felszabadítjuk, hogy ne mutasson inaktív vezetőre.

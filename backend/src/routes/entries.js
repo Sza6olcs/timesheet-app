@@ -46,7 +46,7 @@ function getEmployee(id) {
 
 // true, ha a bejelentkezett vezető/admin láthatja/kezelheti a targetEmployeeId dolgozó rekordjait
 function canManage(user, targetEmployeeId) {
-  if (user.role === "admin") return true;
+  if (user.role === "admin" || user.role === "superadmin") return true;
   if (user.role === "supervisor") {
     const target = getEmployee(targetEmployeeId);
     return !!target && target.supervisor_id === user.id;
@@ -171,7 +171,7 @@ router.post("/:id/approve", requireAuth, requireRole("supervisor", "admin"), (re
   const now = new Date().toISOString();
   const { extraAllowance, extraAllowanceHours } = req.body || {};
 
-  if (req.user.role === "admin" && (extraAllowance !== undefined || extraAllowanceHours !== undefined)) {
+  if ((req.user.role === "admin" || req.user.role === "superadmin") && (extraAllowance !== undefined || extraAllowanceHours !== undefined)) {
     const nextAllowance = extraAllowance !== undefined ? Math.max(0, Number(extraAllowance) || 0) : existing.extra_allowance;
     const nextHours = Math.min(
       existing.worked_hours,
@@ -253,6 +253,26 @@ router.post("/:id/correct", requireAuth, requireRole("supervisor", "admin"), (re
   `).run(uuid(), req.params.id, req.user.id, now, reason, JSON.stringify(oldValue), JSON.stringify(newValue));
 
   res.json(toPublic(db.prepare("SELECT * FROM timesheet_entries WHERE id = ?").get(req.params.id)));
+});
+
+// Bejegyzés végleges törlése — csak super admin, kötelező indoklással.
+// A törölt bejegyzés adatai az auditnaplóba kerülnek, mielőtt véglegesen eltűnnének.
+router.delete("/:id", requireAuth, requireRole("superadmin"), (req, res) => {
+  const { reason } = req.body || {};
+  if (!reason || !reason.trim()) return res.status(400).json({ error: "A törlés indoklása kötelező." });
+
+  const existing = db.prepare("SELECT * FROM timesheet_entries WHERE id = ?").get(req.params.id);
+  if (!existing) return res.status(404).json({ error: "Bejegyzés nem található." });
+
+  const now = new Date().toISOString();
+  db.prepare(`
+    INSERT INTO entry_audit_log (id, entry_id, changed_by, changed_at, reason, old_value_json, new_value_json)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(uuid(), req.params.id, req.user.id, now, reason, JSON.stringify(toPublic(existing)), JSON.stringify({ deleted: true }));
+
+  db.prepare("DELETE FROM timesheet_entries WHERE id = ?").run(req.params.id);
+
+  res.json({ ok: true });
 });
 
 module.exports = router;

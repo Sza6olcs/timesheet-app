@@ -15,7 +15,8 @@ function requireAuth(req, res, next) {
 
 function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    // A superadmin minden szerepkör-ellenőrzésen átjut — ő az admin jogkör szuperhalmaza.
+    if (!req.user || (req.user.role !== "superadmin" && !roles.includes(req.user.role))) {
       return res.status(403).json({ error: "Nincs jogosultságod ehhez a művelethez." });
     }
     next();

@@ -67,6 +67,7 @@ export const api = {
   approveEntry: (id, override) => request(`/entries/${id}/approve`, { method: "POST", body: override ? JSON.stringify(override) : undefined }),
   returnEntry: (id, reason) => request(`/entries/${id}/return`, { method: "POST", body: JSON.stringify({ reason }) }),
   correctEntry: (id, payload) => request(`/entries/${id}/correct`, { method: "POST", body: JSON.stringify(payload) }),
+  deleteEntry: (id, reason) => request(`/entries/${id}`, { method: "DELETE", body: JSON.stringify({ reason }) }),
 
   auditLog: () => request("/audit-log"),
 
