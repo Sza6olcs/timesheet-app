@@ -85,6 +85,8 @@ h1, h2, h3, .section-title, .login-title, .brand span {
 .nav-item.active { background: var(--amber); color: var(--ink); font-weight: 500; }
 .sidebar-foot { border-top: 1px solid #6b6b6b; padding-top: 0.8rem; margin-top: 0.6rem; }
 .user-chip { display: flex; align-items: center; gap: 0.55rem; padding: 0.4rem 0.3rem; margin-bottom: 0.3rem; }
+.user-chip-button { width: 100%; background: transparent; border: none; text-align: left; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif; }
+.user-chip-button:hover { background: #626262; }
 .avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: var(--ink); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
 .user-chip-name { font-size: 0.8rem; }
 .user-chip-role { font-size: 0.65rem; color: #C6CCD3; text-transform: uppercase; }

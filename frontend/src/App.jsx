@@ -31,6 +31,7 @@ const TRANSLATIONS = {
     locations: { title: "Telephelyek kezelése", country: "Ország", city: "Város", plant: "Gyár neve", add: "Új telephely", countryPlaceholder: "pl. Magyarország", cityPlaceholder: "pl. Győr", plantPlaceholder: "pl. Győr Gyár 2", deleteWarning: "A telephely véglegesen törlődik a listából. A korábbi bejegyzésekben a neve megmarad.", confirmDeleteMsg: "Biztosan törlöd ezt a telephelyet?" },
     departments: { title: "Részlegek kezelése", name: "Részleg neve", add: "Új részleg", namePlaceholder: "pl. Karbantartás", deleteWarning: "A részleg véglegesen törlődik a listából. A korábbi bejegyzésekben a neve megmarad.", confirmDeleteMsg: "Biztosan törlöd ezt a részleget?" },
     misc: { hoursShort: "óra", currency: "€", loggedInAs: "Bejelentkezve mint", confirmToast: "Sikeresen mentve" },
+    account: { changePassword: "Jelszó módosítása", current: "Jelenlegi jelszó", newPassword: "Új jelszó", confirmPassword: "Új jelszó megerősítése", mismatch: "A két új jelszó nem egyezik.", tooShort: "Az új jelszónak legalább 6 karakter hosszúnak kell lennie.", changed: "Jelszó sikeresen módosítva" },
   },
   en: {
     appTitle: "TimeTrack",
@@ -50,6 +51,7 @@ const TRANSLATIONS = {
     locations: { title: "Manage locations", country: "Country", city: "City", plant: "Plant name", add: "Add location", countryPlaceholder: "e.g. Hungary", cityPlaceholder: "e.g. Győr", plantPlaceholder: "e.g. Győr Plant 2", deleteWarning: "The location will be permanently removed from the list. Past entries keep its name.", confirmDeleteMsg: "Remove this location?" },
     departments: { title: "Manage departments", name: "Department name", add: "Add department", namePlaceholder: "e.g. Maintenance", deleteWarning: "The department will be permanently removed from the list. Past entries keep its name.", confirmDeleteMsg: "Remove this department?" },
     misc: { hoursShort: "h", currency: "€", loggedInAs: "Signed in as", confirmToast: "Saved successfully" },
+    account: { changePassword: "Change password", current: "Current password", newPassword: "New password", confirmPassword: "Confirm new password", mismatch: "The two new passwords don't match.", tooShort: "The new password must be at least 6 characters long.", changed: "Password changed successfully" },
   },
   de: {
     appTitle: "ZeitErfassung",
@@ -69,6 +71,7 @@ const TRANSLATIONS = {
     locations: { title: "Standorte verwalten", country: "Land", city: "Stadt", plant: "Werksname", add: "Standort hinzufügen", countryPlaceholder: "z. B. Ungarn", cityPlaceholder: "z. B. Győr", plantPlaceholder: "z. B. Győr Werk 2", deleteWarning: "Der Standort wird endgültig aus der Liste entfernt. Vergangene Einträge behalten seinen Namen.", confirmDeleteMsg: "Diesen Standort entfernen?" },
     departments: { title: "Abteilungen verwalten", name: "Abteilungsname", add: "Abteilung hinzufügen", namePlaceholder: "z. B. Instandhaltung", deleteWarning: "Die Abteilung wird endgültig aus der Liste entfernt. Vergangene Einträge behalten ihren Namen.", confirmDeleteMsg: "Diese Abteilung entfernen?" },
     misc: { hoursShort: "Std.", currency: "€", loggedInAs: "Angemeldet als", confirmToast: "Erfolgreich gespeichert" },
+    account: { changePassword: "Passwort ändern", current: "Aktuelles Passwort", newPassword: "Neues Passwort", confirmPassword: "Neues Passwort bestätigen", mismatch: "Die beiden neuen Passwörter stimmen nicht überein.", tooShort: "Das neue Passwort muss mindestens 6 Zeichen lang sein.", changed: "Passwort erfolgreich geändert" },
   },
   ro: {
     appTitle: "Pontaj",
@@ -88,6 +91,7 @@ const TRANSLATIONS = {
     locations: { title: "Gestionare locații", country: "Țară", city: "Oraș", plant: "Numele uzinei", add: "Adaugă locație", countryPlaceholder: "ex. Ungaria", cityPlaceholder: "ex. Győr", plantPlaceholder: "ex. Uzina Győr 2", deleteWarning: "Locația va fi eliminată definitiv din listă. Înregistrările anterioare păstrează numele ei.", confirmDeleteMsg: "Elimini această locație?" },
     departments: { title: "Gestionare departamente", name: "Numele departamentului", add: "Adaugă departament", namePlaceholder: "ex. Întreținere", deleteWarning: "Departamentul va fi eliminat definitiv din listă. Înregistrările anterioare păstrează numele lui.", confirmDeleteMsg: "Elimini acest departament?" },
     misc: { hoursShort: "h", currency: "€", loggedInAs: "Autentificat ca", confirmToast: "Salvat cu succes" },
+    account: { changePassword: "Schimbă parola", current: "Parola curentă", newPassword: "Parolă nouă", confirmPassword: "Confirmă parola nouă", mismatch: "Cele două parole noi nu coincid.", tooShort: "Noua parolă trebuie să aibă cel puțin 6 caractere.", changed: "Parola a fost schimbată cu succes" },
   },
   tr: {
     appTitle: "Puantaj",
@@ -107,6 +111,7 @@ const TRANSLATIONS = {
     locations: { title: "Lokasyonları yönet", country: "Ülke", city: "Şehir", plant: "Tesis adı", add: "Lokasyon ekle", countryPlaceholder: "örn. Macaristan", cityPlaceholder: "örn. Győr", plantPlaceholder: "örn. Győr Tesis 2", deleteWarning: "Lokasyon listeden kalıcı olarak kaldırılır. Geçmiş kayıtlar adını korur.", confirmDeleteMsg: "Bu lokasyonu kaldırmak istiyor musun?" },
     departments: { title: "Departmanları yönet", name: "Departman adı", add: "Departman ekle", namePlaceholder: "örn. Bakım", deleteWarning: "Departman listeden kalıcı olarak kaldırılır. Geçmiş kayıtlar adını korur.", confirmDeleteMsg: "Bu departmanı kaldırmak istiyor musun?" },
     misc: { hoursShort: "sa", currency: "€", loggedInAs: "Giriş yapan", confirmToast: "Başarıyla kaydedildi" },
+    account: { changePassword: "Şifreyi değiştir", current: "Mevcut şifre", newPassword: "Yeni şifre", confirmPassword: "Yeni şifreyi onayla", mismatch: "İki yeni şifre eşleşmiyor.", tooShort: "Yeni şifre en az 6 karakter olmalıdır.", changed: "Şifre başarıyla değiştirildi" },
   },
 };
 
@@ -1313,6 +1318,60 @@ function DepartmentsView({ t, departments, onAdd, onUpdate, onDelete }) {
 }
 
 /* ---------------------------------------------------------------------- */
+/* Change password modal                                                  */
+/* ---------------------------------------------------------------------- */
+
+function ChangePasswordModal({ t, onSubmit, onClose }) {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit() {
+    setError("");
+    if (newPassword.length < 6) {
+      setError(t("account.tooShort"));
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError(t("account.mismatch"));
+      return;
+    }
+    setBusy(true);
+    try {
+      await onSubmit(currentPassword, newPassword);
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="modal-backdrop" onClick={onClose}>
+      <div className="modal" style={{ borderTopColor: "var(--ink)" }} onClick={(e) => e.stopPropagation()}>
+        <h3 className="section-title">{t("account.changePassword")}</h3>
+        <label className="field-label">{t("account.current")}</label>
+        <input type="password" className="input" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
+        <label className="field-label">{t("account.newPassword")}</label>
+        <input type="password" className="input" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+        <label className="field-label">{t("account.confirmPassword")}</label>
+        <input type="password" className="input" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        {error && <div className="login-error" style={{ marginTop: "0.6rem" }}>{error}</div>}
+        <div className="btn-row">
+          <button className="btn btn-ghost" onClick={onClose} disabled={busy}>{t("buttons.cancel")}</button>
+          <button className="btn btn-primary" disabled={busy || !currentPassword || !newPassword || !confirmPassword} onClick={submit}>
+            {t("buttons.save")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
 /* Root app                                                                */
 /* ---------------------------------------------------------------------- */
 
@@ -1333,6 +1392,7 @@ export default function App() {
   const [booting, setBooting] = useState(true);
   const [toast, setToast] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const t = useT(lang);
 
   function flashToast(msg) {
@@ -1527,6 +1587,11 @@ export default function App() {
     }
   }
 
+  async function changeOwnPassword(currentPassword, newPassword) {
+    await api.changePassword(currentPassword, newPassword);
+    flashToast(t("account.changed"));
+  }
+
   async function doExport(kind, month, group) {
     try {
       const result = kind === "csv" ? await api.exportCsv(month, group) : await api.exportXlsx(month, group);
@@ -1592,13 +1657,13 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <div className="user-chip">
+            <button className="user-chip user-chip-button" title={t("account.changePassword")} onClick={() => setShowPasswordModal(true)}>
               <div className="avatar">{user.name.charAt(0)}</div>
               <div>
                 <div className="user-chip-name">{user.name}</div>
                 <div className="user-chip-role">{t("users.role_" + user.role)}</div>
               </div>
-            </div>
+            </button>
             <button className="nav-item logout" onClick={handleLogout}>
               <LogOut size={16} strokeWidth={1.75} />
               {t("nav.logout")}
@@ -1620,6 +1685,9 @@ export default function App() {
       </div>
 
       {toast && <div className="toast">{toast}</div>}
+      {showPasswordModal && (
+        <ChangePasswordModal t={t} onSubmit={changeOwnPassword} onClose={() => setShowPasswordModal(false)} />
+      )}
     </>
   );
 }
