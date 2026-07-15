@@ -31,8 +31,9 @@ function buildRows(month, group) {
     const diff = Math.round((settings.expectedMonthlyHours - worked) * 100) / 100;
     const days = new Set(empEntries.map((e) => e.work_date)).size;
     const allowance = days * settings.allowancePerDay;
-    const extraAllowancePercent = empEntries.length
-      ? Math.round((empEntries.reduce((s, e) => s + (e.extra_allowance || 0), 0) / empEntries.length) * 100) / 100
+    const extraAllowanceHours = Math.round(empEntries.reduce((s, e) => s + (e.extra_allowance_hours || 0), 0) * 100) / 100;
+    const extraAllowancePercent = extraAllowanceHours > 0
+      ? Math.round((empEntries.reduce((s, e) => s + (e.extra_allowance || 0) * (e.extra_allowance_hours || 0), 0) / extraAllowanceHours) * 100) / 100
       : 0;
     const approverIds = [...new Set(empEntries.map((e) => e.approved_by).filter(Boolean))];
     const approverName = approverIds.length ? employeeById.get(approverIds[0])?.name || "" : "";
@@ -46,6 +47,7 @@ function buildRows(month, group) {
       diff,
       allowance,
       extraAllowancePercent,
+      extraAllowanceHours,
       approverName,
       lastModDate: lastMod ? lastMod.last_modified_at.slice(0, 10) : "",
       lastModBy: lastMod ? employeeById.get(lastMod.last_modified_by)?.name || "" : "",
@@ -53,7 +55,7 @@ function buildRows(month, group) {
   });
 }
 
-const HEADERS = ["Név", "Havi várható munkaidő", "Ledolgozott órák", "Különbség", "Napidíj (EUR)", "Extra pótlék (átl. %/óra)", "Jóváhagyó neve", "Utolsó módosítás dátuma", "Utolsó módosítást végző"];
+const HEADERS = ["Név", "Havi várható munkaidő", "Ledolgozott órák", "Különbség", "Napidíj (EUR)", "Extra pótlék (súlyozott átl. %)", "Extra pótlék órák", "Jóváhagyó neve", "Utolsó módosítás dátuma", "Utolsó módosítást végző"];
 
 function csvEscape(val) {
   const s = String(val ?? "");
@@ -68,7 +70,7 @@ router.get("/csv", requireAuth, requireRole("admin"), (req, res) => {
   const rows = buildRows(month, group);
   const lines = [HEADERS.map(csvEscape).join(",")];
   rows.forEach((r) => {
-    lines.push([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowancePercent, r.approverName, r.lastModDate, r.lastModBy].map(csvEscape).join(","));
+    lines.push([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowancePercent, r.extraAllowanceHours, r.approverName, r.lastModDate, r.lastModBy].map(csvEscape).join(","));
   });
 
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
@@ -86,7 +88,7 @@ router.get("/xlsx", requireAuth, requireRole("admin"), async (req, res) => {
   ws.addRow(HEADERS);
   ws.getRow(1).font = { bold: true };
   rows.forEach((r) => {
-    ws.addRow([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowancePercent, r.approverName, r.lastModDate, r.lastModBy]);
+    ws.addRow([r.name, r.expected, r.worked, r.diff, r.allowance, r.extraAllowancePercent, r.extraAllowanceHours, r.approverName, r.lastModDate, r.lastModBy]);
   });
   ws.columns.forEach((col) => (col.width = 22));
 

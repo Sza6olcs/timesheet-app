@@ -9,6 +9,7 @@ const auditRoutes = require("./routes/audit");
 const settingsRoutes = require("./routes/settings");
 const exportRoutes = require("./routes/export");
 const locationRoutes = require("./routes/locations");
+const departmentRoutes = require("./routes/departments");
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use("/api/audit-log", auditRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/export", exportRoutes);
 app.use("/api/locations", locationRoutes);
+app.use("/api/departments", departmentRoutes);
 
 // Egységes hibakezelő
 app.use((err, req, res, next) => {

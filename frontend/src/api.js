@@ -64,7 +64,7 @@ export const api = {
   },
   createEntry: (payload) => request("/entries", { method: "POST", body: JSON.stringify(payload) }),
   updateEntry: (id, payload) => request(`/entries/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
-  approveEntry: (id) => request(`/entries/${id}/approve`, { method: "POST" }),
+  approveEntry: (id, override) => request(`/entries/${id}/approve`, { method: "POST", body: override ? JSON.stringify(override) : undefined }),
   returnEntry: (id, reason) => request(`/entries/${id}/return`, { method: "POST", body: JSON.stringify({ reason }) }),
   correctEntry: (id, payload) => request(`/entries/${id}/correct`, { method: "POST", body: JSON.stringify(payload) }),
 
@@ -74,6 +74,11 @@ export const api = {
   addLocation: (payload) => request("/locations", { method: "POST", body: JSON.stringify(payload) }),
   updateLocation: (id, payload) => request(`/locations/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
   deleteLocation: (id) => request(`/locations/${id}`, { method: "DELETE" }),
+
+  listDepartments: () => request("/departments"),
+  addDepartment: (payload) => request("/departments", { method: "POST", body: JSON.stringify(payload) }),
+  updateDepartment: (id, payload) => request(`/departments/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
+  deleteDepartment: (id) => request(`/departments/${id}`, { method: "DELETE" }),
 
   getSettings: () => request("/settings"),
   updateSettings: (payload) => request("/settings", { method: "PUT", body: JSON.stringify(payload) }),

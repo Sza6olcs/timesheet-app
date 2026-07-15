@@ -19,6 +19,9 @@ function toPublic(row) {
     plant: row.plant_name,
     comment: row.comment,
     extraAllowance: row.extra_allowance,
+    extraAllowanceHours: row.extra_allowance_hours,
+    projectNumber: row.project_number,
+    department: row.department,
     status: row.status,
     approvedBy: row.approved_by,
     approvedAt: row.approved_at,
@@ -73,24 +76,28 @@ router.get("/", requireAuth, (req, res) => {
 });
 
 router.post("/", requireAuth, (req, res) => {
-  const { date, start, end, shift, country, city, plant, comment, extraAllowance, submit } = req.body || {};
+  const { date, start, end, shift, country, city, plant, comment, extraAllowance, extraAllowanceHours, projectNumber, department, submit } = req.body || {};
   if (!date || !start || !end || !shift || !country || !city || !plant) {
     return res.status(400).json({ error: "Hiányzó kötelező mező." });
   }
   const now = new Date().toISOString();
+  const workedHours = computeHours(start, end);
   const row = {
     id: uuid(),
     employee_id: req.user.id,
     work_date: date,
     start_time: start,
     end_time: end,
-    worked_hours: computeHours(start, end),
+    worked_hours: workedHours,
     shift_code: shift,
     country,
     city,
     plant_name: plant,
     comment: comment || "",
     extra_allowance: Math.max(0, Number(extraAllowance) || 0),
+    extra_allowance_hours: Math.min(workedHours, Math.max(0, Number(extraAllowanceHours) || 0)),
+    project_number: projectNumber || "",
+    department: department || "",
     status: submit ? "submitted" : "draft",
     approved_by: null,
     approved_at: null,
@@ -101,9 +108,9 @@ router.post("/", requireAuth, (req, res) => {
   };
   db.prepare(`
     INSERT INTO timesheet_entries
-      (id, employee_id, work_date, start_time, end_time, worked_hours, shift_code, country, city, plant_name, comment, extra_allowance, status, approved_by, approved_at, last_modified_by, last_modified_at, created_at, updated_at)
+      (id, employee_id, work_date, start_time, end_time, worked_hours, shift_code, country, city, plant_name, comment, extra_allowance, extra_allowance_hours, project_number, department, status, approved_by, approved_at, last_modified_by, last_modified_at, created_at, updated_at)
     VALUES
-      (@id, @employee_id, @work_date, @start_time, @end_time, @worked_hours, @shift_code, @country, @city, @plant_name, @comment, @extra_allowance, @status, @approved_by, @approved_at, @last_modified_by, @last_modified_at, @created_at, @updated_at)
+      (@id, @employee_id, @work_date, @start_time, @end_time, @worked_hours, @shift_code, @country, @city, @plant_name, @comment, @extra_allowance, @extra_allowance_hours, @project_number, @department, @status, @approved_by, @approved_at, @last_modified_by, @last_modified_at, @created_at, @updated_at)
   `).run(row);
 
   res.status(201).json(toPublic(row));
@@ -118,7 +125,7 @@ router.patch("/:id", requireAuth, (req, res) => {
     return res.status(409).json({ error: "Csak piszkozat vagy visszaküldött bejegyzés szerkeszthető." });
   }
 
-  const { date, start, end, shift, country, city, plant, comment, extraAllowance, submit } = req.body || {};
+  const { date, start, end, shift, country, city, plant, comment, extraAllowance, extraAllowanceHours, projectNumber, department, submit } = req.body || {};
   const now = new Date().toISOString();
   const updated = {
     work_date: date ?? existing.work_date,
@@ -130,22 +137,31 @@ router.patch("/:id", requireAuth, (req, res) => {
     plant_name: plant ?? existing.plant_name,
     comment: comment ?? existing.comment,
     extra_allowance: extraAllowance !== undefined ? Math.max(0, Number(extraAllowance) || 0) : existing.extra_allowance,
+    project_number: projectNumber !== undefined ? projectNumber : existing.project_number,
+    department: department !== undefined ? department : existing.department,
     status: submit ? "submitted" : "draft",
     updated_at: now,
   };
   updated.worked_hours = computeHours(updated.start_time, updated.end_time);
+  updated.extra_allowance_hours = Math.min(
+    updated.worked_hours,
+    Math.max(0, Number(extraAllowanceHours !== undefined ? extraAllowanceHours : existing.extra_allowance_hours) || 0)
+  );
 
   db.prepare(`
     UPDATE timesheet_entries SET
       work_date=@work_date, start_time=@start_time, end_time=@end_time, worked_hours=@worked_hours,
       shift_code=@shift_code, country=@country, city=@city, plant_name=@plant_name, comment=@comment,
-      extra_allowance=@extra_allowance, status=@status, updated_at=@updated_at
+      extra_allowance=@extra_allowance, extra_allowance_hours=@extra_allowance_hours,
+      project_number=@project_number, department=@department, status=@status, updated_at=@updated_at
     WHERE id = @id
   `).run({ ...updated, id: req.params.id });
 
   res.json(toPublic(db.prepare("SELECT * FROM timesheet_entries WHERE id = ?").get(req.params.id)));
 });
 
+// Jóváhagyáskor az admin felülbírálhatja a dolgozó által javasolt extra pótlék
+// százalékát és óraszámát (vezető ezt nem módosíthatja, csak jóváhagy/visszaküld).
 router.post("/:id/approve", requireAuth, requireRole("supervisor", "admin"), (req, res) => {
   const existing = db.prepare("SELECT * FROM timesheet_entries WHERE id = ?").get(req.params.id);
   if (!existing) return res.status(404).json({ error: "Bejegyzés nem található." });
@@ -153,8 +169,23 @@ router.post("/:id/approve", requireAuth, requireRole("supervisor", "admin"), (re
   if (existing.status !== "submitted") return res.status(409).json({ error: "Csak beküldött bejegyzés hagyható jóvá." });
 
   const now = new Date().toISOString();
-  db.prepare("UPDATE timesheet_entries SET status='approved', approved_by=?, approved_at=?, updated_at=? WHERE id=?")
-    .run(req.user.id, now, now, req.params.id);
+  const { extraAllowance, extraAllowanceHours } = req.body || {};
+
+  if (req.user.role === "admin" && (extraAllowance !== undefined || extraAllowanceHours !== undefined)) {
+    const nextAllowance = extraAllowance !== undefined ? Math.max(0, Number(extraAllowance) || 0) : existing.extra_allowance;
+    const nextHours = Math.min(
+      existing.worked_hours,
+      Math.max(0, Number(extraAllowanceHours !== undefined ? extraAllowanceHours : existing.extra_allowance_hours) || 0)
+    );
+    db.prepare(`
+      UPDATE timesheet_entries SET
+        status='approved', approved_by=?, approved_at=?, updated_at=?, extra_allowance=?, extra_allowance_hours=?
+      WHERE id=?
+    `).run(req.user.id, now, now, nextAllowance, nextHours, req.params.id);
+  } else {
+    db.prepare("UPDATE timesheet_entries SET status='approved', approved_by=?, approved_at=?, updated_at=? WHERE id=?")
+      .run(req.user.id, now, now, req.params.id);
+  }
 
   res.json(toPublic(db.prepare("SELECT * FROM timesheet_entries WHERE id = ?").get(req.params.id)));
 });

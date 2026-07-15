@@ -43,6 +43,9 @@ CREATE TABLE IF NOT EXISTS timesheet_entries (
   last_modified_by TEXT REFERENCES employees(id),
   last_modified_at TEXT,
   extra_allowance REAL NOT NULL DEFAULT 0,
+  extra_allowance_hours REAL NOT NULL DEFAULT 0,
+  project_number TEXT DEFAULT '',
+  department TEXT DEFAULT '',
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
@@ -70,16 +73,31 @@ CREATE TABLE IF NOT EXISTS locations (
   created_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS departments (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_entries_employee ON timesheet_entries(employee_id);
 CREATE INDEX IF NOT EXISTS idx_entries_status ON timesheet_entries(status);
 CREATE INDEX IF NOT EXISTS idx_audit_entry ON entry_audit_log(entry_id);
 `);
 
-// Migráció: extra_allowance oszlop pótlása már létező adatbázisokon
+// Migráció: új oszlopok pótlása már létező adatbázisokon
 // (a fenti CREATE TABLE IF NOT EXISTS nem érinti a már létrehozott táblát).
 const entryCols = db.prepare("PRAGMA table_info(timesheet_entries)").all().map((c) => c.name);
 if (!entryCols.includes("extra_allowance")) {
   db.exec("ALTER TABLE timesheet_entries ADD COLUMN extra_allowance REAL NOT NULL DEFAULT 0");
+}
+if (!entryCols.includes("extra_allowance_hours")) {
+  db.exec("ALTER TABLE timesheet_entries ADD COLUMN extra_allowance_hours REAL NOT NULL DEFAULT 0");
+}
+if (!entryCols.includes("project_number")) {
+  db.exec("ALTER TABLE timesheet_entries ADD COLUMN project_number TEXT DEFAULT ''");
+}
+if (!entryCols.includes("department")) {
+  db.exec("ALTER TABLE timesheet_entries ADD COLUMN department TEXT DEFAULT ''");
 }
 
 // Default settings if missing
@@ -107,6 +125,20 @@ if (locationCount === 0) {
     for (const row of rows) insertLocation.run({ id: uuid(), created_at: now, ...row });
   });
   insertAll(initialLocations);
+}
+
+// Kezdeti részleg-katalógus, ha még egyáltalán nincs felvéve részleg.
+const departmentCount = db.prepare("SELECT COUNT(*) AS n FROM departments").get().n;
+if (departmentCount === 0) {
+  const insertDepartment = db.prepare(`
+    INSERT INTO departments (id, name, created_at) VALUES (@id, @name, @created_at)
+  `);
+  const now = new Date().toISOString();
+  const initialDepartments = ["Karbantartás", "Termelés", "Minőségbiztosítás", "Mérnökség", "Logisztika"];
+  const insertAllDepartments = db.transaction((names) => {
+    for (const name of names) insertDepartment.run({ id: uuid(), name, created_at: now });
+  });
+  insertAllDepartments(initialDepartments);
 }
 
 module.exports = db;
